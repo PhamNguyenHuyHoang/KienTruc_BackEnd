@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface SinhVienRepository extends JpaRepository<SinhVien, String> {
     Optional<SinhVien> findByEmail(String email);
+
     boolean existsByEmail(String email); // Kiểm tra email đã tồn tại
 }

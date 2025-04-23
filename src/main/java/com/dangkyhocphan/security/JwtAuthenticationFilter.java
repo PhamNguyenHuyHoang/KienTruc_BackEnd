@@ -1,5 +1,9 @@
 package com.dangkyhocphan.security;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,10 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-//    @Override
+    //    @Override
 //    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 //        try {
 //            String jwt = getJwtFromRequest(request);
@@ -91,34 +91,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //
 //    filterChain.doFilter(request, response);
 //}
-@Override
-protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    try {
-        String jwt = getJwtFromRequest(request);
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String jwt = getJwtFromRequest(request);
 
-        if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt, userDetailsService.loadUserByUsername(jwtUtil.extractUsername(jwt)))) {
-            String username = jwtUtil.extractUsername(jwt);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt, userDetailsService.loadUserByUsername(jwtUtil.extractUsername(jwt)))) {
+                String username = jwtUtil.extractUsername(jwt);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 📌 Thêm log để kiểm tra authentication
-            System.out.println("🔍 SecurityContext Authentication: " + SecurityContextHolder.getContext().getAuthentication());
-            System.out.println("🔍 Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+                // 📌 Thêm log để kiểm tra authentication
+                System.out.println("🔍 SecurityContext Authentication: " + SecurityContextHolder.getContext().getAuthentication());
+                System.out.println("🔍 Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+            }
+        } catch (Exception ex) {
+            logger.error("Could not set user authentication in security context", ex);
         }
-    } catch (Exception ex) {
-        logger.error("Could not set user authentication in security context", ex);
+
+        filterChain.doFilter(request, response);
+
+        // 📌 Kiểm tra SecurityContext sau khi request đi qua tất cả các filter
+        System.out.println("🔍 SecurityContext after filter: " + SecurityContextHolder.getContext().getAuthentication());
     }
-
-    filterChain.doFilter(request, response);
-
-    // 📌 Kiểm tra SecurityContext sau khi request đi qua tất cả các filter
-    System.out.println("🔍 SecurityContext after filter: " + SecurityContextHolder.getContext().getAuthentication());
-}
-
 
 
     private String getJwtFromRequest(HttpServletRequest request) {

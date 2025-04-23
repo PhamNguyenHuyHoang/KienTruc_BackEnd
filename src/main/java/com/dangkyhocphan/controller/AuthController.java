@@ -1,24 +1,27 @@
 package com.dangkyhocphan.controller;
 
 import com.dangkyhocphan.model.LoaiTaiKhoan;
+import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.model.TaiKhoan;
+import com.dangkyhocphan.repository.SinhVienRepository;
 import com.dangkyhocphan.repository.TaiKhoanRepository;
 import com.dangkyhocphan.security.JwtUtil;
 import com.dangkyhocphan.security.TaiKhoanDetailsService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Optional;
-import com.dangkyhocphan.repository.SinhVienRepository;
-import com.dangkyhocphan.model.SinhVien;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -41,7 +44,7 @@ public class AuthController {
         this.taiKhoanDetailsService = taiKhoanDetailsService;
         this.sinhVienRepository = sinhVienRepository;
     }
-
+    // Đăng nhập
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody TaiKhoan taiKhoan) {
         try {
@@ -67,39 +70,14 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
 
-            return ResponseEntity.ok(token);
+//            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(Map.of("token", token));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body("Sai tên đăng nhập hoặc mật khẩu!");
         }
     }
-
-//    @PostMapping("/register")
-//    @Transactional
-//    public ResponseEntity<String> register(@RequestBody TaiKhoan taiKhoan) {
-//        // Kiểm tra tài khoản đã tồn tại chưa
-//        if (taiKhoanRepository.findByTenDangNhap(taiKhoan.getTenDangNhap()).isPresent()) {
-//            return ResponseEntity.badRequest().body("Tài khoản đã tồn tại!");
-//        }
-//
-//        // Lấy mã tài khoản lớn nhất trong database
-//        String lastMaTaiKhoan = taiKhoanRepository.findLastMaTaiKhoan();
-//        int newId = (lastMaTaiKhoan != null) ? Integer.parseInt(lastMaTaiKhoan.substring(2)) + 1 : 1;
-//        taiKhoan.setMaTaiKhoan(String.format("TK%03d", newId)); // Format thành TK001, TK002...
-//
-//        // Gán quyền mặc định nếu chưa có
-//        if (taiKhoan.getLoaiTaiKhoan() == null) {
-//            taiKhoan.setLoaiTaiKhoan(LoaiTaiKhoan.SINHVIEN);
-//        }
-//
-//        // Mã hóa mật khẩu
-//        taiKhoan.setMatKhau(passwordEncoder.encode(taiKhoan.getMatKhau()));
-//
-//        // Lưu vào database
-//        taiKhoanRepository.save(taiKhoan);
-//
-//        return ResponseEntity.ok("Đăng ký thành công!");
-//    }
+    // Đăng ký
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<String> register(@RequestBody TaiKhoan taiKhoan) {
@@ -134,8 +112,7 @@ public class AuthController {
 
         return ResponseEntity.ok("Đăng ký thành công!");
     }
-
-
+    // Đổi mật khẩu
     @PostMapping("/doimatkhau")
     public ResponseEntity<?> doiMatKhau(@RequestBody Map<String, String> request) {
         String username = request.get("username");

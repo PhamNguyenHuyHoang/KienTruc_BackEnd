@@ -1,7 +1,12 @@
 package com.dangkyhocphan.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,12 +19,14 @@ public class LichHoc {
     @Id
     private String maLichHoc;
 
-    private LocalDate ngayHoc;
-    private LocalTime gioBatDau;
-    private LocalTime gioKetThuc;
+    private String thu;
+    private String tietBatDau;
+    private String tietKetThuc;
+    private String diaDiem;
+    private String giangVien;
 
     @ManyToOne
-    @JoinColumn(name = "maHocPhan", referencedColumnName = "maHocPhan")
-    private HocPhan hocPhan;
+    @JoinColumn(name = "ma_lop_hoc_phan", referencedColumnName = "ma_lop_hoc_phan")
+    private LopHocPhan lopHocPhan;
 }
 

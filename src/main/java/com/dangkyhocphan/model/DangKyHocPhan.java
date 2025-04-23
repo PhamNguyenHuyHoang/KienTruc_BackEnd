@@ -1,7 +1,11 @@
 package com.dangkyhocphan.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -9,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 public class DangKyHocPhan {
     @Id
+    @Column(name = "madk")
     private String maDK;
 
     @ManyToOne
@@ -16,7 +21,9 @@ public class DangKyHocPhan {
     private SinhVien sinhVien;
 
     @ManyToOne
-    @JoinColumn(name = "maHocPhan", referencedColumnName = "maHocPhan")
-    private HocPhan hocPhan;
+    @JoinColumn(name = "ma_lop_hoc_phan", referencedColumnName = "ma_lop_hoc_phan")
+    private LopHocPhan lopHocPhan;
+
+    private LocalDateTime thoiGianDangKy;
 }
 

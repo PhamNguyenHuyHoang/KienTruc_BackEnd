@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, String> {
     boolean existsByTenDangNhap(String tenDangNhap); // Thêm phương thức này
+
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);
 
     @Query("SELECT MAX(t.maTaiKhoan) FROM TaiKhoan t")

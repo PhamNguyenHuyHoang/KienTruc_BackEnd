@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.dangkyhocphan.model")
 @SpringBootApplication
 public class DangkyhocphanApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(DangkyhocphanApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DangkyhocphanApplication.class, args);
+    }
 }

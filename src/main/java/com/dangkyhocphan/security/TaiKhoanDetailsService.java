@@ -3,7 +3,6 @@ package com.dangkyhocphan.security;
 import com.dangkyhocphan.model.TaiKhoan;
 import com.dangkyhocphan.repository.TaiKhoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +20,13 @@ import java.util.Optional;
 public class TaiKhoanDetailsService implements UserDetailsService {
     private final TaiKhoanRepository taiKhoanRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Autowired
     public TaiKhoanDetailsService(TaiKhoanRepository taiKhoanRepository) {
         this.taiKhoanRepository = taiKhoanRepository;
     }
 
-//    @Override
+    //    @Override
 //    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 //        System.out.println("🔍 Kiểm tra đăng nhập: " + username); // Log username đăng nhập
 //        TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(username)

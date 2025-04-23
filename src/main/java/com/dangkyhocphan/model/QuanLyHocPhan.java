@@ -1,7 +1,9 @@
 package com.dangkyhocphan.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class QuanLyHocPhan {
     private String maQuanLy;
 
     @OneToMany
-    private List<HocPhan> danhSachHocPhan;
+    private List<LopHocPhan> danhSachHocPhan;
 
     @ManyToOne
     @JoinColumn(name = "maAdmin", referencedColumnName = "maAdmin")

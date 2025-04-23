@@ -51,7 +51,6 @@
 //}
 package com.dangkyhocphan.service;
 
-import com.dangkyhocphan.model.LoaiTaiKhoan;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.model.TaiKhoan;
 import com.dangkyhocphan.repository.SinhVienRepository;
@@ -88,6 +87,7 @@ public class SinhVienService {
     public Optional<SinhVien> getSinhVienByEmail(String email) {
         return sinhVienRepository.findByEmail(email);
     }
+
     @Transactional
     public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
         if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {

@@ -29,20 +29,15 @@ import java.util.Optional;
 @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ quản trị viên mới có quyền truy cập
 public class QuanTriVienController {
 
+    private static final Logger log = LogManager.getLogger(QuanTriVienController.class);
     @Autowired
     private QuanTriVienService quanTriVienService;
-
     @Autowired
     private QuanTriVienRepository quanTriVienRepository;
-
     @Autowired
     private TaiKhoanRepository taiKhoanRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-    private static final Logger log = LogManager.getLogger(QuanTriVienController.class);
-
-
 
     // Lấy danh sách tất cả quản trị viên
     @GetMapping
@@ -50,7 +45,6 @@ public class QuanTriVienController {
         List<QuanTriVien> danhSachQTV = quanTriVienService.getAllQuanTriVien();
         return ResponseEntity.ok(danhSachQTV);
     }
-
     // Lấy thông tin chi tiết của một quản trị viên theo mã
     @GetMapping("/{maQuanTriVien}")
     public ResponseEntity<?> getQuanTriVienById(@PathVariable String maQuanTriVien) {
@@ -61,7 +55,7 @@ public class QuanTriVienController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Không tìm thấy quản trị viên!")); // Trả về JSON thay vì String
     }
-
+    // Them quan tri vien chi co qtv002 moi them duoc
     @PostMapping
     @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ cho phép quản trị viên
     public ResponseEntity<?> themQuanTriVien(@RequestBody QuanTriVien quanTriVien, Authentication authentication) {
@@ -73,29 +67,24 @@ public class QuanTriVienController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Bạn không có quyền thêm quản trị viên!"));
         }
-
         // Kiểm tra xem mã quản trị viên đã tồn tại chưa
         if (quanTriVienRepository.existsById(quanTriVien.getMaAdmin())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Mã quản trị viên đã tồn tại!"));
         }
-
         // Tạo tài khoản mới
         TaiKhoan taiKhoan = new TaiKhoan();
         taiKhoan.setTenDangNhap(quanTriVien.getMaAdmin());
         taiKhoan.setMatKhau(passwordEncoder.encode("123456")); // Mật khẩu mặc định
         taiKhoan.setLoaiTaiKhoan(LoaiTaiKhoan.QUANTRIVIEN); // Quyền là QUANTRIVIEN
         taiKhoan = taiKhoanRepository.save(taiKhoan); // Lưu tài khoản
-
         // Gán tài khoản vào quản trị viên
         quanTriVien.setTaiKhoan(taiKhoan);
-
         // Lưu quản trị viên vào database
         QuanTriVien qtv = quanTriVienRepository.save(quanTriVien);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(qtv);
     }
-
+    // Xóa quản trị viên
     @DeleteMapping("/{maQuanTriVien}")
     public ResponseEntity<String> xoaQuanTriVien(@PathVariable String maQuanTriVien) {
 
@@ -110,7 +99,7 @@ public class QuanTriVienController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống");
         }
     }
-
+    // Cập nhật thông tin quản trị viên
     @PutMapping("/{maQuanTriVien}")
     public ResponseEntity<?> capNhatQuanTriVien(@PathVariable String maQuanTriVien,
                                                 @Valid @RequestBody QuanTriVienRequest request,

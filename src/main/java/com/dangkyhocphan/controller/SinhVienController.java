@@ -6,10 +6,9 @@ import com.dangkyhocphan.service.SinhVienService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -23,35 +22,31 @@ public class SinhVienController {
     @Autowired
     private SinhVienRepository sinhVienRepository;
 
-
     // Lấy danh sách tất cả sinh viên
     @GetMapping
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<List<SinhVien>> getAllSinhVien() {
         return ResponseEntity.ok(sinhVienService.getAllSinhVien());
     }
-
     // Lấy sinh viên theo mã sinh viên
     @GetMapping("/{maSinhVien}")
     public ResponseEntity<SinhVien> getSinhVienById(@PathVariable String maSinhVien) {
         Optional<SinhVien> sinhVien = sinhVienService.getSinhVienById(maSinhVien);
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
     // Lấy sinh viên theo email
     @GetMapping("/email/{email}")
     public ResponseEntity<SinhVien> getSinhVienByEmail(@PathVariable String email) {
         Optional<SinhVien> sinhVien = sinhVienService.getSinhVienByEmail(email);
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
     // Them sinh vien
-    //http://localhost:9090/dangkyhocphan/api/sinhvien
     @PostMapping
     @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ cho phép QUANTRIVIEN thêm sinh viên
     public ResponseEntity<?> themSinhVien(@RequestBody SinhVien sinhVien) {
         return sinhVienService.themSinhVien(sinhVien);
     }
-
+    // Xoa sinh viên
     @DeleteMapping("/{maSinhVien}")
     @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ QUANTRIVIEN được phép xóa
     public ResponseEntity<?> xoaSinhVien(@PathVariable String maSinhVien) {
@@ -62,12 +57,10 @@ public class SinhVienController {
         sinhVienRepository.deleteById(maSinhVien);
         return ResponseEntity.ok("Đã xóa sinh viên thành công!");
     }
-
+    // Cập nhật thông tin sinh viên
     @PutMapping("/{maSinhVien}")
-    @PreAuthorize("hasAnyAuthority('SINHVIEN', 'QUANTRIVIEN')") // Cả 2 role đều được phép
-    public ResponseEntity<?> capNhatSinhVien(@PathVariable String maSinhVien,
-                                             @RequestBody SinhVien sinhVienMoi,
-                                             Authentication authentication) {
+    @PreAuthorize("hasAnyAuthority('SINHVIEN', 'QUANTRIVIEN')") // Cả SINHVIEN và QUANTRIVIEN đều có quyền cập nhật
+    public ResponseEntity<?> capNhatSinhVien(@PathVariable String maSinhVien, @RequestBody SinhVien sinhVienMoi, Authentication authentication) {
         // Kiểm tra sinh viên có tồn tại không
         Optional<SinhVien> optionalSinhVien = sinhVienService.getSinhVienById(maSinhVien);
         if (optionalSinhVien.isEmpty()) {
@@ -88,6 +81,4 @@ public class SinhVienController {
         // Nếu là QUANTRIVIEN, được phép cập nhật tất cả thông tin
         return sinhVienService.capNhatThongTin(maSinhVien, sinhVienMoi);
     }
-
-
 }

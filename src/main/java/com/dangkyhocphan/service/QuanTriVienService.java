@@ -1,11 +1,9 @@
 package com.dangkyhocphan.service;
 
 import com.dangkyhocphan.dto.QuanTriVienRequest;
-import com.dangkyhocphan.model.LoaiTaiKhoan;
 import com.dangkyhocphan.model.QuanTriVien;
 import com.dangkyhocphan.model.TaiKhoan;
 import com.dangkyhocphan.repository.QuanTriVienRepository;
-import com.dangkyhocphan.repository.SomeRelatedEntityRepository;
 import com.dangkyhocphan.repository.TaiKhoanRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
