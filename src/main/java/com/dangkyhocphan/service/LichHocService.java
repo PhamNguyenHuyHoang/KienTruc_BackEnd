@@ -22,6 +22,7 @@ public class LichHocService {
     private final LichHocRepository lichHocRepository;
     private final LopHocPhanRepository lopHocPhanRepository;
     private final DangKyHocPhanRepository dangKyHocPhanRepository;
+
     // 1. Tạo lịch học (QUANTRIVIEN)
     public String taoLichHoc(LichHocRequest request) {
         if (lichHocRepository.existsById(request.getMaLichHoc())) {
@@ -39,9 +40,11 @@ public class LichHocService {
                 request.getGiangVien(),
                 lop
         );
+        lich.setNgayHoc(request.getNgayHoc()); // ✅ THÊM DÒNG NÀY
         lichHocRepository.save(lich);
         return "Tạo lịch học thành công.";
     }
+
     // 2. Cập nhật lịch học (QUANTRIVIEN)
     public String capNhatLichHoc(String maLichHoc, LichHocRequest request) {
         LichHoc lich = lichHocRepository.findById(maLichHoc)
@@ -58,6 +61,7 @@ public class LichHocService {
         lichHocRepository.save(lich);
         return "Cập nhật lịch học thành công.";
     }
+
     // 3. Xoá lịch học (QUANTRIVIEN)
     public String xoaLichHoc(String maLichHoc) {
         LichHoc lich = lichHocRepository.findById(maLichHoc)
@@ -65,35 +69,51 @@ public class LichHocService {
         lichHocRepository.delete(lich);
         return "Xoá lịch học thành công.";
     }
+
     // 4. Lấy toàn bộ lịch học của 1 lớp học phần (SINHVIEN & QUANTRIVIEN)
     public List<LichHocResponse> getLichHocTheoLop(String maLopHocPhan) {
         return lichHocRepository.findByLopHocPhan_MaLopHocPhan(maLopHocPhan)
                 .stream()
                 .map(lh -> new LichHocResponse(
-                        lh.getMaLichHoc(),
+                        lh.getLopHocPhan().getMaLopHocPhan(),
+                        lh.getLopHocPhan().getMonHoc().getTenMonHoc(),
                         lh.getThu(),
                         lh.getTietBatDau(),
                         lh.getTietKetThuc(),
                         lh.getDiaDiem(),
                         lh.getGiangVien(),
-                        lh.getLopHocPhan().getMaLopHocPhan()
-                )).toList();
+                        lh.getNgayHoc(),
+                        lh.getLoaiBuoi()// ✅ THÊM THAM SỐ THỨ 8
+                ))
+                .toList();
     }
+
     // 5. Lấy lịch học sinh viên theo tuần (SINHVIEN & QUANTRIVIEN)
     public List<LichHocResponse> getLichHocSinhVienTheoTuan(String maSinhVien, LocalDate ngayBatDauTuan) {
         List<DangKyHocPhan> dks = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
         List<LichHoc> allLichHoc = new ArrayList<>();
         for (DangKyHocPhan dk : dks) {
-            List<LichHoc> lich = lichHocRepository.findByLopHocPhan_MaLopHocPhan(dk.getLopHocPhan().getMaLopHocPhan());
+            List<LichHoc> lich = lichHocRepository.findByLopHocPhan_MaLopHocPhan(
+                    dk.getLopHocPhan().getMaLopHocPhan());
             allLichHoc.addAll(lich);
         }
-        // Giả sử lịch học theo tuần là tất cả lịch có trong lớp học phần
+
         return allLichHoc.stream()
+                .filter(lh -> lh.getNgayHoc() != null &&
+                        !lh.getNgayHoc().isBefore(ngayBatDauTuan) &&
+                        !lh.getNgayHoc().isAfter(ngayBatDauTuan.plusDays(6)))
                 .map(lh -> new LichHocResponse(
-                        lh.getMaLichHoc(), lh.getThu(), lh.getTietBatDau(),
-                        lh.getTietKetThuc(), lh.getDiaDiem(), lh.getGiangVien(),
-                        lh.getLopHocPhan().getMaLopHocPhan()
-                )).toList();
+                        lh.getLopHocPhan() != null ? lh.getLopHocPhan().getMaLopHocPhan() : "",
+                        lh.getLopHocPhan() != null && lh.getLopHocPhan().getMonHoc() != null ? lh.getLopHocPhan().getMonHoc().getTenMonHoc() : "",
+                        lh.getThu(),
+                        lh.getTietBatDau(),
+                        lh.getTietKetThuc(),
+                        lh.getDiaDiem(),
+                        lh.getGiangVien(),
+                        lh.getNgayHoc(),
+                        lh.getLoaiBuoi()
+                ))
+                .toList();
     }
 }
 

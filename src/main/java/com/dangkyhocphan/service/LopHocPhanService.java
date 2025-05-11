@@ -4,6 +4,7 @@ import com.dangkyhocphan.dto.LopHocPhanRequest;
 import com.dangkyhocphan.dto.LopHocPhanResponse;
 import com.dangkyhocphan.model.LopHocPhan;
 import com.dangkyhocphan.model.MonHoc;
+import com.dangkyhocphan.repository.DangKyHocPhanRepository;
 import com.dangkyhocphan.repository.LopHocPhanRepository;
 import com.dangkyhocphan.repository.MonHocRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class LopHocPhanService {
 
     @Autowired
     private MonHocRepository monHocRepository;
+
+    @Autowired
+    private DangKyHocPhanRepository dangKyHocPhanRepository;
 
     public LopHocPhan createLopHocPhan(LopHocPhanRequest request) {
         MonHoc monHoc = monHocRepository.findById(request.getMaMonHoc())
@@ -118,6 +122,7 @@ public class LopHocPhanService {
     // DUNG LopHocPhanRequest de tranh loi @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "ma_mon_hoc", nullable = false)
     public LopHocPhanResponse convertToResponseDTO(LopHocPhan entity) {
         LopHocPhanResponse dto = new LopHocPhanResponse();
+        int daDangKy = dangKyHocPhanRepository.countByLopHocPhan_MaLopHocPhan(entity.getMaLopHocPhan());
 
         dto.setMaLopHocPhan(entity.getMaLopHocPhan());
         dto.setTenLopHocPhan(entity.getTenLopHocPhan());
@@ -128,7 +133,9 @@ public class LopHocPhanService {
         dto.setTietKetThuc(entity.getTietKetThuc());
         dto.setDiaDiem(entity.getDiaDiem());
         dto.setSoLuongSinhVienToiDa(entity.getSoLuongSinhVienToiDa());
+        dto.setSoLuongDaDangKy(daDangKy);
         dto.setGiangVien(entity.getGiangVien());
+        dto.setSoTinChi(entity.getMonHoc().getSoTinChi());
 
         // Gán thông tin từ MonHoc
         if (entity.getMonHoc() != null) {
@@ -188,6 +195,10 @@ public class LopHocPhanService {
     public LopHocPhan saveLopHocPhan(LopHocPhanRequest dto) {
         LopHocPhan entity = convertDtoToEntity(dto);
         return lopHocPhanRepository.save(entity);
+    }
+
+    public List<LopHocPhan> getLopHocPhanBySinhVien(String maSinhVien) {
+        return dangKyHocPhanRepository.findLopHocPhanBySinhVien_MaSinhVien(maSinhVien);
     }
 
 }

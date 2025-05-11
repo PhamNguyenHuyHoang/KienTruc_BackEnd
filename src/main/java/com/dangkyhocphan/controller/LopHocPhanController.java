@@ -40,6 +40,16 @@ public class LopHocPhanController {
 
         return ResponseEntity.ok(dtoList);
     }
+    // Lấy danh sách lớp học phần theo mã sinh viên
+    @GetMapping("/sinhvien/{maSinhVien}")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<List<LopHocPhanResponse>> getLopHocPhanBySinhVien(@PathVariable String maSinhVien) {
+        List<LopHocPhan> dsLop = lopHocPhanService.getLopHocPhanBySinhVien(maSinhVien);
+        List<LopHocPhanResponse> responseList = dsLop.stream()
+                .map(lopHocPhanService::convertToResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseList);
+    }
     // Tao lop hoc phan
     @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     @PostMapping

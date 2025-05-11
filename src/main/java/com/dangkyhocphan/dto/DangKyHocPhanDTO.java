@@ -17,5 +17,4 @@ public class DangKyHocPhanDTO {
     private String tenMonHoc;       // Thêm thông tin cần thiết từ MonHoc
     private LocalDateTime thoiGianDangKy;
 
-    // Bạn có thể thêm các trường khác mà bạn muốn hiển thị
 }

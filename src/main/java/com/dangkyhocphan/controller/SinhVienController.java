@@ -1,8 +1,10 @@
 package com.dangkyhocphan.controller;
 
+import com.dangkyhocphan.dto.SinhVienSelfUpdateDTO;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.repository.SinhVienRepository;
 import com.dangkyhocphan.service.SinhVienService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,45 +12,97 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sinhvien")
 public class SinhVienController {
+
     @Autowired
     private SinhVienService sinhVienService;
 
     @Autowired
     private SinhVienRepository sinhVienRepository;
 
-    // Lấy danh sách tất cả sinh viên
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @GetMapping
     @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<List<SinhVien>> getAllSinhVien() {
         return ResponseEntity.ok(sinhVienService.getAllSinhVien());
     }
-    // Lấy sinh viên theo mã sinh viên
+
     @GetMapping("/{maSinhVien}")
     public ResponseEntity<SinhVien> getSinhVienById(@PathVariable String maSinhVien) {
         Optional<SinhVien> sinhVien = sinhVienService.getSinhVienById(maSinhVien);
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    // Lấy sinh viên theo email
+
+//    @GetMapping("/me")
+//    @PreAuthorize("hasAuthority('SINHVIEN')")
+//    public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
+//        String tenDangNhap = authentication.getName();
+//        Optional<SinhVien> sv = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
+//        if (sv.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
+//        return ResponseEntity.ok(sv.get());
+//    }
+public record SinhVienDTO(
+        String maSinhVien,
+        String hoTen,
+        String email,
+        String gioiTinh,
+        LocalDate ngaySinh,
+        String noiSinh,
+        String lopHoc,
+        String khoaHoc,
+        String bacDaoTao,
+        String loaiHinhDaoTao,
+        String nganh,
+        String tenDangNhap
+) {}
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
+        String tenDangNhap = authentication.getName();
+        Optional<SinhVien> svOpt = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
+        if (svOpt.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
+
+        SinhVien sv = svOpt.get();
+        SinhVienDTO dto = new SinhVienDTO(
+                sv.getMaSinhVien(),
+                sv.getHoTen(),
+                sv.getEmail(),
+                sv.getGioiTinh(),
+                sv.getNgaySinh(),
+                sv.getNoiSinh(),
+                sv.getLopHoc(),
+                sv.getKhoaHoc(),
+                sv.getBacDaoTao(),
+                sv.getLoaiHinhDaoTao(),
+                sv.getNganh(),
+                sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTenDangNhap() : null
+        );
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping("/email/{email}")
     public ResponseEntity<SinhVien> getSinhVienByEmail(@PathVariable String email) {
         Optional<SinhVien> sinhVien = sinhVienService.getSinhVienByEmail(email);
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    // Them sinh vien
+
     @PostMapping
-    @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ cho phép QUANTRIVIEN thêm sinh viên
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<?> themSinhVien(@RequestBody SinhVien sinhVien) {
         return sinhVienService.themSinhVien(sinhVien);
     }
-    // Xoa sinh viên
+
     @DeleteMapping("/{maSinhVien}")
-    @PreAuthorize("hasAuthority('QUANTRIVIEN')") // Chỉ QUANTRIVIEN được phép xóa
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<?> xoaSinhVien(@PathVariable String maSinhVien) {
         if (!sinhVienRepository.existsById(maSinhVien)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sinh viên không tồn tại!");
@@ -57,28 +111,33 @@ public class SinhVienController {
         sinhVienRepository.deleteById(maSinhVien);
         return ResponseEntity.ok("Đã xóa sinh viên thành công!");
     }
-    // Cập nhật thông tin sinh viên
+
     @PutMapping("/{maSinhVien}")
-    @PreAuthorize("hasAnyAuthority('SINHVIEN', 'QUANTRIVIEN')") // Cả SINHVIEN và QUANTRIVIEN đều có quyền cập nhật
-    public ResponseEntity<?> capNhatSinhVien(@PathVariable String maSinhVien, @RequestBody SinhVien sinhVienMoi, Authentication authentication) {
-        // Kiểm tra sinh viên có tồn tại không
+    @PreAuthorize("hasAnyAuthority('SINHVIEN', 'QUANTRIVIEN')")
+    public ResponseEntity<?> capNhatSinhVien(@PathVariable String maSinhVien,
+                                             @RequestBody Object payload,
+                                             Authentication authentication) {
         Optional<SinhVien> optionalSinhVien = sinhVienService.getSinhVienById(maSinhVien);
         if (optionalSinhVien.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sinh viên không tồn tại!");
         }
 
         SinhVien sinhVienHienTai = optionalSinhVien.get();
+        String username = authentication.getName();
+        boolean isSinhVien = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("SINHVIEN"));
 
-        // Nếu người dùng có quyền 'SINHVIEN', họ chỉ có thể cập nhật chính mình
-        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SINHVIEN"))) {
-            String username = authentication.getName(); // Lấy tên đăng nhập từ security context
-            if (!sinhVienHienTai.getEmail().equals(username)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn chỉ có thể cập nhật thông tin của chính mình!");
+        if (isSinhVien) {
+            if (!sinhVienHienTai.getTaiKhoan().getTenDangNhap().equals(username)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Bạn chỉ có thể cập nhật thông tin của chính mình!");
             }
-            return sinhVienService.capNhatEmail(maSinhVien, sinhVienMoi.getEmail());
-        }
 
-        // Nếu là QUANTRIVIEN, được phép cập nhật tất cả thông tin
-        return sinhVienService.capNhatThongTin(maSinhVien, sinhVienMoi);
+            SinhVienSelfUpdateDTO dto = objectMapper.convertValue(payload, SinhVienSelfUpdateDTO.class);
+            return sinhVienService.sinhVienCapNhatThongTin(maSinhVien, dto);
+        } else {
+            SinhVien dto = objectMapper.convertValue(payload, SinhVien.class);
+            return sinhVienService.quanTriVienCapNhatThongTin(maSinhVien, dto);
+        }
     }
 }

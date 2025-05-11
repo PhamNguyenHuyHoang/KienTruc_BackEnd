@@ -2,6 +2,8 @@ package com.dangkyhocphan.dto;
 
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Data
 @Getter
 @Setter
@@ -15,4 +17,6 @@ public class LichHocRequest {
     private String diaDiem;
     private String giangVien;
     private String maLopHocPhan;
+    private LocalDate ngayHoc;
+
 }

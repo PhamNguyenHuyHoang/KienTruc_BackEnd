@@ -1,6 +1,7 @@
 package com.dangkyhocphan.service;
 
 import com.dangkyhocphan.dto.DangKyHocPhanDTO;
+import com.dangkyhocphan.dto.DangKyHocPhanDTO2;
 import com.dangkyhocphan.dto.DangKyHocPhanRequest;
 import com.dangkyhocphan.dto.LichHocResponse;
 import com.dangkyhocphan.model.DangKyHocPhan;
@@ -12,15 +13,17 @@ import com.dangkyhocphan.repository.LichHocRepository;
 import com.dangkyhocphan.repository.LopHocPhanRepository;
 import com.dangkyhocphan.repository.SinhVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class DangKyHocPhanService {
@@ -36,6 +39,10 @@ public class DangKyHocPhanService {
 
     @Autowired
     private LichHocRepository lichHocRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     // Đăng ký học phần
     @Transactional
     public String dangKyHocPhan(DangKyHocPhanRequest request) {
@@ -43,70 +50,45 @@ public class DangKyHocPhanService {
         String maLopHocPhan = request.getMaLopHocPhan();
         String maDK = generateMaDK();
         kiemTraThoiGianChoPhep();
-        if (dangKyHocPhanRepository.existsById(maDK)) {
-            throw new RuntimeException("Mã đăng ký " + maDK + " đã tồn tại (lỗi hệ thống).");
-        }
 
-        // ✅ Kiểm tra sinh viên & lớp học phần tồn tại
         SinhVien sinhVien = sinhVienRepository.findById(maSinhVien)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên: " + maSinhVien));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sinh viên: " + maSinhVien));
 
         LopHocPhan lopHocPhanMoi = lopHocPhanRepository.findById(maLopHocPhan)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học phần: " + maLopHocPhan));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lớp học phần: " + maLopHocPhan));
 
-        // ✅ Lấy danh sách các lớp đã đăng ký
         List<DangKyHocPhan> daDangKyList = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
 
-        // ✅ 1. Giới hạn số lượng lớp học phần (ví dụ: 6 lớp)
-        if (daDangKyList.size() >= 6) {
-            throw new RuntimeException("Bạn đã đăng ký đủ số lượng lớp học phần cho phép.");
+        if (daDangKyList.size() >= 8) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn chỉ được đăng ký tối đa 6 học phần.");
         }
 
-        // ✅ 2. Giới hạn số tín chỉ (ví dụ: tối đa 20)
         int tongTinChi = daDangKyList.stream()
                 .mapToInt(dk -> dk.getLopHocPhan().getMonHoc().getSoTinChi())
                 .sum();
         int tinChiMoi = lopHocPhanMoi.getMonHoc().getSoTinChi();
         if (tongTinChi + tinChiMoi > 30) {
-            throw new RuntimeException("Vượt quá giới hạn tín chỉ cho phép.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tổng số tín chỉ vượt quá giới hạn cho phép là 30.");
         }
 
-        // ✅ 3. Tránh đăng ký trùng môn học (cùng môn nhưng lớp khác)
         boolean trungMon = daDangKyList.stream()
                 .anyMatch(dk -> dk.getLopHocPhan().getMonHoc().getMaMonHoc()
                         .equals(lopHocPhanMoi.getMonHoc().getMaMonHoc()));
         if (trungMon) {
-            throw new RuntimeException("Bạn đã đăng ký môn học này ở lớp khác rồi.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bạn đã đăng ký môn học này ở lớp khác rồi.");
         }
 
-        // ✅ 4. Kiểm tra trùng lịch học phần
-        if (isTrungLichHoc_LichHoc(maSinhVien, maLopHocPhan)) {
-            throw new RuntimeException("Lớp học phần này bị trùng lịch với lớp bạn đã đăng ký.");
+        if (isTrungLichHoc(maSinhVien, maLopHocPhan) || isTrungLichHoc_LichHoc(maSinhVien, maLopHocPhan)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Lớp học phần bị trùng lịch với lớp bạn đã đăng ký.");
         }
-//        for (DangKyHocPhan dangKy : daDangKyList) {
-//            LopHocPhan lopDaDangKy = dangKy.getLopHocPhan();
-//
-//            if (lopDaDangKy.getThu().equalsIgnoreCase(lopHocPhanMoi.getThu())) {
-//                try {
-//                    int start1 = Integer.parseInt(lopDaDangKy.getTietBatDau());
-//                    int end1 = Integer.parseInt(lopDaDangKy.getTietKetThuc());
-//
-//                    int start2 = Integer.parseInt(lopHocPhanMoi.getTietBatDau());
-//                    int end2 = Integer.parseInt(lopHocPhanMoi.getTietKetThuc());
-//
-//                    boolean isTrungLich = (start1 <= end2 && start2 <= end1);
-//
-//                    if (isTrungLich) {
-//                        throw new RuntimeException("Lớp học phần bị trùng lịch với lớp đã đăng ký: "
-//                                + lopDaDangKy.getMaLopHocPhan());
-//                    }
-//                } catch (NumberFormatException e) {
-//                    throw new RuntimeException("Lỗi định dạng tiết học. Đảm bảo tiết là số nguyên.", e);
-//                }
-//            }
-//        }
 
-        // ✅ 5. Tạo và lưu đăng ký học phần
+        String loaiBuoi = "LT";
+        String tenMon = lopHocPhanMoi.getMonHoc().getTenMonHoc().toLowerCase();
+        if (tenMon.contains("thực hành")) loaiBuoi = "TN";
+        if (tenMon.contains("thi") || tenMon.contains("kiểm tra")) loaiBuoi = "THI";
+
+        autoGenerateLichHocIfMissing(lopHocPhanMoi, LocalDate.of(2025, 5, 5), LocalDate.of(2025, 9, 15), loaiBuoi);
+
         DangKyHocPhan dangKy = new DangKyHocPhan();
         dangKy.setMaDK(maDK);
         dangKy.setSinhVien(sinhVien);
@@ -114,37 +96,183 @@ public class DangKyHocPhanService {
         dangKy.setThoiGianDangKy(LocalDateTime.now());
 
         dangKyHocPhanRepository.save(dangKy);
-
         return "Đăng ký thành công với mã: " + maDK;
     }
-    // Tạo mã đăng ký học phần tự động
-    private String generateMaDK() {
-        Optional<String> lastMaDKOptional = dangKyHocPhanRepository.findLastMaDKForUpdate("DK");
-        int nextSequence = 1;
+//    // Đăng ký học phần
+//    @Transactional
+//    public String dangKyHocPhan(DangKyHocPhanRequest request) {
+//        String maSinhVien = request.getMaSinhVien();
+//        String maLopHocPhan = request.getMaLopHocPhan();
+//        String maDK = generateMaDK();
+//        kiemTraThoiGianChoPhep();
+//
+//        if (dangKyHocPhanRepository.existsById(maDK)) {
+//            throw new RuntimeException("Mã đăng ký " + maDK + " đã tồn tại (lỗi hệ thống).");
+//        }
+//
+//        SinhVien sinhVien = sinhVienRepository.findById(maSinhVien)
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên: " + maSinhVien));
+//
+//        LopHocPhan lopHocPhanMoi = lopHocPhanRepository.findById(maLopHocPhan)
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học phần: " + maLopHocPhan));
+//
+//        List<DangKyHocPhan> daDangKyList = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
+//
+//        if (daDangKyList.size() >= 6) {
+//            throw new RuntimeException("Bạn đã đăng ký đủ số lượng lớp học phần cho phép.");
+//        }
+//
+//        int tongTinChi = daDangKyList.stream()
+//                .mapToInt(dk -> dk.getLopHocPhan().getMonHoc().getSoTinChi())
+//                .sum();
+//        int tinChiMoi = lopHocPhanMoi.getMonHoc().getSoTinChi();
+//        if (tongTinChi + tinChiMoi > 30) {
+//            throw new RuntimeException("Vượt quá giới hạn tín chỉ cho phép.");
+//        }
+//
+//        boolean trungMon = daDangKyList.stream()
+//                .anyMatch(dk -> dk.getLopHocPhan().getMonHoc().getMaMonHoc()
+//                        .equals(lopHocPhanMoi.getMonHoc().getMaMonHoc()));
+//        if (trungMon) {
+//            throw new RuntimeException("Bạn đã đăng ký môn học này ở lớp khác rồi.");
+//        }
+//
+//        if (isTrungLichHoc_LichHoc(maSinhVien, maLopHocPhan)) {
+//            throw new RuntimeException("Lớp học phần này bị trùng lịch với lớp bạn đã đăng ký.");
+//        }
+//
+//        // ✅ Xác định loại buổi dựa trên tên môn học
+//        String loaiBuoi = "LT";
+//        String tenMon = lopHocPhanMoi.getMonHoc().getTenMonHoc().toLowerCase();
+//        if (tenMon.contains("thực hành")) loaiBuoi = "TN";
+//        if (tenMon.contains("thi") || tenMon.contains("kiểm tra")) loaiBuoi = "THI";
+//
+//        autoGenerateLichHocIfMissing(lopHocPhanMoi, LocalDate.of(2025, 5, 5), loaiBuoi);
+//
+//        DangKyHocPhan dangKy = new DangKyHocPhan();
+//        dangKy.setMaDK(maDK);
+//        dangKy.setSinhVien(sinhVien);
+//        dangKy.setLopHocPhan(lopHocPhanMoi);
+//        dangKy.setThoiGianDangKy(LocalDateTime.now());
+//
+//        dangKyHocPhanRepository.save(dangKy);
+//        return "Đăng ký thành công với mã: " + maDK;
+//    }
 
-        if (lastMaDKOptional.isPresent()) {
-            String lastMaDK = lastMaDKOptional.get();
-            Pattern pattern = Pattern.compile("DK(\\d+)");
-            Matcher matcher = pattern.matcher(lastMaDK);
-            if (matcher.find()) {
-                try {
-                    int lastSequence = Integer.parseInt(matcher.group(1));
-                    nextSequence = lastSequence + 1;
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Lỗi khi phân tích mã đăng ký: " + lastMaDK, e);
-                }
-            }
+    private void autoGenerateLichHocIfMissing(
+            LopHocPhan lop,
+            LocalDate ngayBatDauTuan,
+            LocalDate ngayKetThucHocKy,
+            String loaiBuoi
+    ) {
+        if ("THI".equalsIgnoreCase(loaiBuoi)) return;
+
+        List<LichHoc> lichDaCo = lichHocRepository.findByLopHocPhan_MaLopHocPhan(lop.getMaLopHocPhan());
+        if (!lichDaCo.isEmpty()) return;
+
+        int tietBD = Integer.parseInt(lop.getTietBatDau().replaceAll("\\D+", ""));
+        int tietKT = Integer.parseInt(lop.getTietKetThuc().replaceAll("\\D+", ""));
+        int soTietMotBuoi = tietKT - tietBD + 1;
+
+        int soTinChi = lop.getMonHoc().getSoTinChi();
+        int tongSoTiet = 15 * soTinChi;
+        int tongSoBuoi = (int) Math.ceil((double) tongSoTiet / soTietMotBuoi);
+
+        DayOfWeek dayOfWeek = switch (lop.getThu().toLowerCase()) {
+            case "thứ 2" -> DayOfWeek.MONDAY;
+            case "thứ 3" -> DayOfWeek.TUESDAY;
+            case "thứ 4" -> DayOfWeek.WEDNESDAY;
+            case "thứ 5" -> DayOfWeek.THURSDAY;
+            case "thứ 6" -> DayOfWeek.FRIDAY;
+            case "thứ 7" -> DayOfWeek.SATURDAY;
+            case "chủ nhật" -> DayOfWeek.SUNDAY;
+            default -> DayOfWeek.MONDAY;
+        };
+
+        LocalDate ngayHocDauTien = ngayBatDauTuan.with(dayOfWeek);
+        List<LichHoc> danhSach = new ArrayList<>();
+
+        for (int i = 0; i < tongSoBuoi; i++) {
+            LocalDate ngayHoc = ngayHocDauTien.plusWeeks(i);
+            if (ngayHoc.isAfter(ngayKetThucHocKy)) break;
+
+            LichHoc lh = new LichHoc();
+            lh.setMaLichHoc(lop.getMaLopHocPhan() + "-" + i);
+            lh.setThu(lop.getThu());
+            lh.setTietBatDau(String.valueOf(tietBD));
+            lh.setTietKetThuc(String.valueOf(tietKT));
+            lh.setDiaDiem(lop.getDiaDiem());
+            lh.setGiangVien(lop.getGiangVien());
+            lh.setNgayHoc(ngayHoc);
+            lh.setLopHocPhan(lop);
+            lh.setLoaiBuoi(loaiBuoi);
+            danhSach.add(lh);
         }
-        return String.format("DK%03d", nextSequence);
+
+        lichHocRepository.saveAll(danhSach);
+        System.out.println("✅ Đã tạo " + danhSach.size() + " lịch học cho lớp " + lop.getMaLopHocPhan());
     }
+
+
+
+
+    // Thay thế cơ chế generate mã DK bằng sequence_generator table
+    @Transactional
+    public String generateMaDK() {
+        Integer currentValue = jdbcTemplate.queryForObject(
+                "SELECT value FROM sequence_generator WHERE id = ? FOR UPDATE",
+                new Object[]{"DK"},
+                Integer.class
+        );
+
+        int nextValue = (currentValue != null) ? currentValue + 1 : 1000;
+
+        jdbcTemplate.update(
+                "UPDATE sequence_generator SET value = ? WHERE id = ?",
+                nextValue, "DK"
+        );
+
+        return String.format("DK%03d", nextValue);
+    }
+
+
     // Lấy danh sách lớp học phần đã đăng ký của sinh viên
     public List<DangKyHocPhan> getHocPhanDaDangKy(String maSinhVien) {
         return dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
     }
+    // Lấy lịch học theo tuần của sinh viên
+    public List<LichHocResponse> getLichHocTheoTuan(String maSinhVien) {
+        List<DangKyHocPhan> danhSach = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
+
+        List<LichHocResponse> lichHocResponses = new ArrayList<>();
+
+        for (DangKyHocPhan dk : danhSach) {
+            String maLopHocPhan = dk.getLopHocPhan().getMaLopHocPhan();
+            List<LichHoc> lichHocList = lichHocRepository.findByLopHocPhan_MaLopHocPhan(maLopHocPhan);
+
+            for (LichHoc lh : lichHocList) {
+                lichHocResponses.add(new LichHocResponse(
+                        maLopHocPhan,
+                        dk.getLopHocPhan().getMonHoc().getTenMonHoc(),
+                        lh.getThu(),
+                        lh.getTietBatDau(),
+                        lh.getTietKetThuc(),
+                        lh.getDiaDiem(),
+                        lh.getGiangVien(),
+                        lh.getNgayHoc(),
+                        lh.getLoaiBuoi() // ✅ thêm trường này
+                ));
+            }
+        }
+
+        return lichHocResponses;
+    }
+
     // Lấy danh sách tất cả đăng ký học phần
     public List<DangKyHocPhan> getAllDangKy() {
         return dangKyHocPhanRepository.findAll();
     }
+
     // Hủy đăng ký học phần
     public String huyDangKyHocPhan(DangKyHocPhanRequest request) {
         kiemTraThoiGianChoPhep();
@@ -155,6 +283,7 @@ public class DangKyHocPhanService {
         dangKyHocPhanRepository.delete(dk);
         return "Hủy đăng ký thành công!";
     }
+
     // Chuyển đổi từ DangKyHocPhan sang DangKyHocPhanDTO
     public DangKyHocPhanDTO toDTO(DangKyHocPhan dangKyHocPhan) {
         if (dangKyHocPhan == null) {
@@ -169,6 +298,7 @@ public class DangKyHocPhanService {
                 dangKyHocPhan.getThoiGianDangKy()
         );
     }
+
     // Kiểm tra xem sinh viên có bị trùng lịch khi đăng ký học phần mới không.
     public boolean isTrungLichHoc(String maSinhVien, String maLopHocPhanMoi) {
         // 1. Kiểm tra sinh viên tồn tại
@@ -188,11 +318,12 @@ public class DangKyHocPhanService {
             // Nếu cùng thứ
             if (lopDaDangKy.getThu().equalsIgnoreCase(lopHocPhanMoi.getThu())) {
                 try {
-                    int start1 = Integer.parseInt(lopDaDangKy.getTietBatDau());
-                    int end1 = Integer.parseInt(lopDaDangKy.getTietKetThuc());
+                    int start1 = Integer.parseInt(lopDaDangKy.getTietBatDau().replaceAll("\\D+", ""));
+                    int end1 = Integer.parseInt(lopDaDangKy.getTietKetThuc().replaceAll("\\D+", ""));
 
-                    int start2 = Integer.parseInt(lopHocPhanMoi.getTietBatDau());
-                    int end2 = Integer.parseInt(lopHocPhanMoi.getTietKetThuc());
+                    int start2 = Integer.parseInt(lopHocPhanMoi.getTietBatDau().replaceAll("\\D+", ""));
+                    int end2 = Integer.parseInt(lopHocPhanMoi.getTietKetThuc().replaceAll("\\D+", ""));
+
 
                     // Kiểm tra trùng lịch
                     boolean isTrungLich = (start1 <= end2 && start2 <= end1);
@@ -206,33 +337,25 @@ public class DangKyHocPhanService {
         }
         return false;
     }
+
     //    Cấu hình mốc thời gian
     private final LocalDateTime startTime = LocalDateTime.of(2025, 4, 15, 0, 0);
     private final LocalDateTime endTime = LocalDateTime.of(2025, 6, 20, 23, 59);
+
     // Kiểm tra thời gian cho phép đăng ký/hủy học phần
     private void kiemTraThoiGianChoPhep() {
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(startTime) || now.isAfter(endTime)) {
-            throw new RuntimeException("Hiện tại không nằm trong thời gian cho phép đăng ký/hủy học phần.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Hiện tại không nằm trong thời gian cho phép đăng ký/hủy học phần.");
         }
     }
-    // Lấy lịch học theo tuần của sinh viên
-    public List<LichHocResponse> getLichHocTheoTuan(String maSinhVien) {
-        List<DangKyHocPhan> danhSach = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
 
-        return danhSach.stream().map(dk -> {
-            LopHocPhan lhp = dk.getLopHocPhan();
-            return new LichHocResponse(
-                    lhp.getMaLopHocPhan(),
-                    lhp.getMonHoc().getTenMonHoc(),
-                    lhp.getThu(),
-                    lhp.getTietBatDau(),
-                    lhp.getTietKetThuc(),
-                    lhp.getDiaDiem(),
-                    lhp.getGiangVien()
-            );
-        }).collect(Collectors.toList());
+    public boolean isTrongThoiGianChoPhep() {
+        LocalDateTime now = LocalDateTime.now();
+        return !(now.isBefore(startTime) || now.isAfter(endTime));
     }
+
+
     // Hủy toàn bộ đăng ký học phần của sinh viên chỉ quản trị viên có quyền
     @Transactional
     public String huyTatCaDangKyCuaSinhVien(String maSinhVien) {
@@ -248,6 +371,7 @@ public class DangKyHocPhanService {
         dangKyHocPhanRepository.deleteAll(danhSach);
         return "Đã huỷ toàn bộ đăng ký học phần cho sinh viên " + maSinhVien;
     }
+
     // Kiểm tra xem lớp học phần mới có bị trùng lịch với lớp đã đăng ký không
     public boolean isTrungLichHoc_LichHoc(String maSinhVien, String maLopHocPhanMoi) {
         SinhVien sinhVien = sinhVienRepository.findById(maSinhVien)
@@ -270,11 +394,12 @@ public class DangKyHocPhanService {
                 for (LichHoc lichCu : lichHocDaDangKy) {
                     if (lichMoi.getThu().equalsIgnoreCase(lichCu.getThu())) {
                         try {
-                            int startMoi = Integer.parseInt(lichMoi.getTietBatDau());
-                            int endMoi = Integer.parseInt(lichMoi.getTietKetThuc());
+                            int startMoi = Integer.parseInt(lichMoi.getTietBatDau().replaceAll("\\D+", ""));
+                            int endMoi = Integer.parseInt(lichMoi.getTietKetThuc().replaceAll("\\D+", ""));
 
-                            int startCu = Integer.parseInt(lichCu.getTietBatDau());
-                            int endCu = Integer.parseInt(lichCu.getTietKetThuc());
+                            int startCu = Integer.parseInt(lichCu.getTietBatDau().replaceAll("\\D+", ""));
+                            int endCu = Integer.parseInt(lichCu.getTietKetThuc().replaceAll("\\D+", ""));
+
 
                             boolean isTrung = (startMoi <= endCu && startCu <= endMoi);
                             if (isTrung) {
@@ -290,6 +415,19 @@ public class DangKyHocPhanService {
         }
 
         return false;
+    }
+
+    public List<DangKyHocPhanDTO2> getHocPhanDaDangKy2(String maSinhVien) {
+        List<DangKyHocPhan> danhSach = dangKyHocPhanRepository.findBySinhVien_MaSinhVien(maSinhVien);
+        return danhSach.stream().map(dk -> new DangKyHocPhanDTO2(
+                dk.getMaDK(),
+                dk.getLopHocPhan().getMaLopHocPhan(),
+                dk.getLopHocPhan().getTenLopHocPhan(),
+                dk.getLopHocPhan().getMonHoc().getMaMonHoc(),
+                dk.getLopHocPhan().getMonHoc().getTenMonHoc(),
+                dk.getLopHocPhan().getMonHoc().getSoTinChi(),
+                dk.getThoiGianDangKy()
+        )).toList();
     }
 
 }

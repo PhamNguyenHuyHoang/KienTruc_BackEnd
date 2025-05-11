@@ -1,5 +1,6 @@
 package com.dangkyhocphan.controller;
 
+import com.dangkyhocphan.dto.MonHocDTO;
 import com.dangkyhocphan.dto.MonHocRequest;
 import com.dangkyhocphan.model.MonHoc;
 import com.dangkyhocphan.service.MonHocService;
@@ -23,7 +24,7 @@ public class MonHocController {
     // Lấy danh sách môn học
     @PreAuthorize("hasAnyAuthority('QUANTRIVIEN', 'SINHVIEN')")
     @GetMapping
-    public ResponseEntity<List<MonHoc>> getAllMonHoc() {
+    public ResponseEntity<List<MonHocDTO>> getAllMonHoc() {
         return ResponseEntity.ok(monHocService.getAllMonHoc());
     }
     // Lấy môn học theo mã

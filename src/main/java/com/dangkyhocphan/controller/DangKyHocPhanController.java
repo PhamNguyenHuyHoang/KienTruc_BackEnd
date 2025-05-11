@@ -1,9 +1,11 @@
 package com.dangkyhocphan.controller;
 
 import com.dangkyhocphan.dto.DangKyHocPhanDTO;
+import com.dangkyhocphan.dto.DangKyHocPhanDTO2;
 import com.dangkyhocphan.dto.DangKyHocPhanRequest;
 import com.dangkyhocphan.dto.LichHocResponse;
 import com.dangkyhocphan.model.DangKyHocPhan;
+import com.dangkyhocphan.repository.DangKyHocPhanRepository;
 import com.dangkyhocphan.service.DangKyHocPhanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +24,9 @@ public class DangKyHocPhanController {
 
     @Autowired
     private DangKyHocPhanService dangKyHocPhanService;
+
+    @Autowired
+    private DangKyHocPhanRepository dangKyHocPhanRepository;
 
     // dang ky hoc phan bang email
     //    @PostMapping("/{maLopHocPhan}")
@@ -36,14 +42,24 @@ public class DangKyHocPhanController {
     //    }
     // Đăng ký học phần
     @PostMapping("/dangky")
-    @PreAuthorize("hasAuthority('SINHVIEN')")
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<String> dangKyHocPhan(@RequestBody DangKyHocPhanRequest request) {
         String message = dangKyHocPhanService.dangKyHocPhan(request);
         return ResponseEntity.ok(message);
     }
+    // Đăng ký học phan sinh viên
+    @PostMapping("/dangky/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<String> dangKyHocPhanCuaToi(@RequestBody DangKyHocPhanRequest request, Authentication authentication) {
+        String maSinhVien = authentication.getName(); // lấy từ token
+        request.setMaSinhVien(maSinhVien); // ghi đè giá trị gửi lên từ client (nếu có)
+        String message = dangKyHocPhanService.dangKyHocPhan(request);
+        return ResponseEntity.ok(message);
+    }
+
     // cho SINHVIEN xem danh sách học phần đã đăng ký
     @GetMapping("/sinhvien/{maSinhVien}")
-    @PreAuthorize("hasAuthority('SINHVIEN')")
+    @PreAuthorize("hasAnyAuthority('QUANTRIVIEN', 'SINHVIEN')")
     public ResponseEntity<List<DangKyHocPhanDTO>> getHocPhanDaDangKy(@PathVariable String maSinhVien) {
         List<DangKyHocPhan> dangKyList = dangKyHocPhanService.getHocPhanDaDangKy(maSinhVien);
         List<DangKyHocPhanDTO> dtoList = dangKyList.stream()
@@ -51,6 +67,29 @@ public class DangKyHocPhanController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
     }
+    // dùng
+    @GetMapping("/sinhvien/me/tinchi-theo-monhoc")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public List<Map<String, Object>> getTinChiTheoMonHocOfCurrentSinhVien(Authentication authentication) {
+        String username = authentication.getName(); // username chính là mã sinh viên
+        return dangKyHocPhanRepository.findTinChiTheoMonHocBySinhVien(username);
+    }
+    //
+    @GetMapping("/sinhvien/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<List<DangKyHocPhanDTO2>> getHocPhanDaDangKyCuaToi(Authentication authentication) {
+        String maSinhVien = authentication.getName();
+        List<DangKyHocPhanDTO2> danhSach = dangKyHocPhanService.getHocPhanDaDangKy2(maSinhVien);
+        return ResponseEntity.ok(danhSach);
+    }
+
+    @GetMapping("/lichhoc/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<List<LichHocResponse>> getLichHocCuaToi(Authentication authentication) {
+        String maSinhVien = authentication.getName();
+        return ResponseEntity.ok(dangKyHocPhanService.getLichHocTheoTuan(maSinhVien));
+    }
+
     // cho QUANTRIVIEN xem toàn bộ đăng ký
     @GetMapping
     @PreAuthorize("hasAuthority('QUANTRIVIEN')")
@@ -84,6 +123,13 @@ public class DangKyHocPhanController {
             return new ResponseEntity<>("Không có quyền thực hiện hành động này.", HttpStatus.FORBIDDEN);
         }
     }
+    // Hủy toàn bộ đăng ký của sinh viên
+    @DeleteMapping("/admin/huytoanbo/{maSinhVien}")
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
+    public ResponseEntity<String> huyToanBoDangKy(@PathVariable String maSinhVien) {
+        String result = dangKyHocPhanService.huyTatCaDangKyCuaSinhVien(maSinhVien);
+        return ResponseEntity.ok(result);
+    }
     // Kiểm tra xem lớp học phần đã đăng ký chưa
     @GetMapping("/trung-lich")
     public ResponseEntity<?> kiemTraTrungLich(@RequestParam String maSinhVien, @RequestParam String maLopHocPhan) {
@@ -96,17 +142,17 @@ public class DangKyHocPhanController {
     }
     // Lấy lịch học theo tuần
     @GetMapping("/lichhoc/{maSinhVien}")
-    @PreAuthorize("hasAuthority('SINHVIEN')")
+    @PreAuthorize("hasAnyAuthority('QUANTRIVIEN', 'SINHVIEN')")
     public ResponseEntity<List<LichHocResponse>> getLichHoc(@PathVariable String maSinhVien) {
         return ResponseEntity.ok(dangKyHocPhanService.getLichHocTheoTuan(maSinhVien));
     }
-    // Hủy toàn bộ đăng ký của sinh viên
-    @DeleteMapping("/admin/huytoanbo/{maSinhVien}")
-    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
-    public ResponseEntity<String> huyToanBoDangKy(@PathVariable String maSinhVien) {
-        String result = dangKyHocPhanService.huyTatCaDangKyCuaSinhVien(maSinhVien);
-        return ResponseEntity.ok(result);
+
+    @GetMapping("/time-valid")
+    public ResponseEntity<Boolean> isTrongThoiGianChoPhep() {
+        return ResponseEntity.ok(dangKyHocPhanService.isTrongThoiGianChoPhep());
     }
+
+
 
 }
 

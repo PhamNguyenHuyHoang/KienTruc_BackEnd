@@ -1,5 +1,6 @@
 package com.dangkyhocphan.service;
 
+import com.dangkyhocphan.dto.MonHocDTO;
 import com.dangkyhocphan.dto.MonHocRequest;
 import com.dangkyhocphan.model.MonHoc;
 import com.dangkyhocphan.model.MonHocTienQuyet;
@@ -37,9 +38,31 @@ public class MonHocService {
     }
 
     // Lấy danh sách môn học
-    public List<MonHoc> getAllMonHoc() {
-        return monHocRepository.findAll();
+    public List<MonHocDTO> getAllMonHoc() {
+        List<MonHoc> monHocs = monHocRepository.findAll();
+        List<MonHocDTO> result = new ArrayList<>();
+
+        for (MonHoc mon : monHocs) {
+            MonHocDTO dto = new MonHocDTO();
+            dto.setMaMonHoc(mon.getMaMonHoc());
+            dto.setTenMonHoc(mon.getTenMonHoc());
+            dto.setSoTinChi(mon.getSoTinChi());
+            dto.setMoTa(mon.getMoTa());
+            dto.setThoiLuongLyThuyet(mon.getThoiLuongLyThuyet());
+            dto.setThoiLuongThucHanh(mon.getThoiLuongThucHanh());
+            dto.setTrangThai(mon.getTrangThai());
+
+            List<String> tienQuyetCodes = mon.getMonTienQuyet().stream()
+                    .map(tq -> tq.getTienQuyet().getMaMonHoc())
+                    .toList();
+
+            dto.setTienQuyet(tienQuyetCodes);
+            result.add(dto);
+        }
+
+        return result;
     }
+
 
     // Lấy môn học theo mã
     public MonHoc getMonHocByMa(String maMonHoc) {

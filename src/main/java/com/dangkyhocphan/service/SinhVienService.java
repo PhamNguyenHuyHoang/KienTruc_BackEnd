@@ -1,56 +1,6 @@
-//package com.dangkyhocphan.service;
-//
-//import com.dangkyhocphan.model.SinhVien;
-//import com.dangkyhocphan.repository.SinhVienRepository;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.List;
-//import java.util.Optional;
-//
-//@Service
-//public class SinhVienService {
-//    private final SinhVienRepository sinhVienRepository;
-//
-//    public SinhVienService(SinhVienRepository sinhVienRepository) {
-//        this.sinhVienRepository = sinhVienRepository;
-//    }
-//
-//    public List<SinhVien> getAllSinhVien() {
-//        return sinhVienRepository.findAll();
-//    }
-//
-//    public Optional<SinhVien> getSinhVienById(String maSinhVien) {
-//        return sinhVienRepository.findById(maSinhVien);
-//    }
-//
-//    public Optional<SinhVien> getSinhVienByEmail(String email) {
-//        return sinhVienRepository.findByEmail(email);
-//    }
-//
-//    public SinhVien addSinhVien(SinhVien sinhVien) {
-//        return sinhVienRepository.save(sinhVien);
-//    }
-//
-//    public SinhVien updateSinhVien(String maSinhVien, SinhVien sinhVienMoi) {
-//        return sinhVienRepository.findById(maSinhVien).map(sinhVien -> {
-//            sinhVien.setHoTen(sinhVienMoi.getHoTen());
-//            sinhVien.setEmail(sinhVienMoi.getEmail());
-//            sinhVien.setTaiKhoan(sinhVienMoi.getTaiKhoan());
-//            return sinhVienRepository.save(sinhVien);
-//        }).orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên!"));
-//    }
-//
-//    public void deleteSinhVien(String maSinhVien) {
-//        sinhVienRepository.findById(maSinhVien).ifPresent(sinhVienRepository::delete);
-//    }
-//
-//    public SinhVien findByEmail(String email) {
-//        Optional<SinhVien> sinhVien = sinhVienRepository.findByEmail(email);
-//        return sinhVien.orElse(null); // ✅ Trả về null nếu không tìm thấy
-//    }
-//}
 package com.dangkyhocphan.service;
 
+import com.dangkyhocphan.dto.SinhVienSelfUpdateDTO;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.model.TaiKhoan;
 import com.dangkyhocphan.repository.SinhVienRepository;
@@ -122,34 +72,47 @@ public class SinhVienService {
     }
 
     @Transactional
-    public ResponseEntity<?> capNhatEmail(String maSinhVien, String email) {
+    public ResponseEntity<?> sinhVienCapNhatThongTin(String maSinhVien, SinhVienSelfUpdateDTO dto) {
         Optional<SinhVien> optionalSinhVien = sinhVienRepository.findById(maSinhVien);
-        if (!optionalSinhVien.isPresent()) {
+        if (optionalSinhVien.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Sinh viên không tồn tại!");
+                    .body("Không tìm thấy sinh viên!");
         }
 
         SinhVien sinhVien = optionalSinhVien.get();
-        sinhVien.setEmail(email);  // Chỉ cập nhật email
-        sinhVienRepository.save(sinhVien);
-        return ResponseEntity.ok("Cập nhật email thành công!");
-    }
+        sinhVien.setHoTen(dto.getHoTen());
+        sinhVien.setEmail(dto.getEmail());
+        sinhVien.setGioiTinh(dto.getGioiTinh());
+        sinhVien.setNgaySinh(dto.getNgaySinh());
+        sinhVien.setNoiSinh(dto.getNoiSinh());
 
-    @Transactional
-    public ResponseEntity<?> capNhatThongTin(String maSinhVien, SinhVien sinhVienMoi) {
-        Optional<SinhVien> optionalSinhVien = sinhVienRepository.findById(maSinhVien);
-        if (!optionalSinhVien.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Sinh viên không tồn tại!");
-        }
-
-        SinhVien sinhVien = optionalSinhVien.get();
-        sinhVien.setHoTen(sinhVienMoi.getHoTen());
-        sinhVien.setEmail(sinhVienMoi.getEmail());
         sinhVienRepository.save(sinhVien);
 
         return ResponseEntity.ok("Cập nhật thông tin thành công!");
     }
 
+    @Transactional
+    public ResponseEntity<?> quanTriVienCapNhatThongTin(String maSinhVien, SinhVien sinhVienMoi) {
+        Optional<SinhVien> optional = sinhVienRepository.findById(maSinhVien);
+        if (optional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sinh viên không tồn tại!");
+        }
+
+        SinhVien sv = optional.get();
+        sv.setHoTen(sinhVienMoi.getHoTen());
+        sv.setEmail(sinhVienMoi.getEmail());
+        sv.setNoiSinh(sinhVienMoi.getNoiSinh());
+        sv.setLopHoc(sinhVienMoi.getLopHoc());
+        sv.setNganh(sinhVienMoi.getNganh());
+        sv.setLoaiHinhDaoTao(sinhVienMoi.getLoaiHinhDaoTao());
+        sv.setBacDaoTao(sinhVienMoi.getBacDaoTao());
+        sv.setKhoaHoc(sinhVienMoi.getKhoaHoc());
+        sv.setGioiTinh(sinhVienMoi.getGioiTinh());
+        sv.setNgaySinh(sinhVienMoi.getNgaySinh());
+
+        sinhVienRepository.save(sv);
+
+        return ResponseEntity.ok("Cập nhật thông tin toàn bộ thành công!");
+    }
 
 }

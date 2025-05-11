@@ -26,34 +26,6 @@ public class TaiKhoanDetailsService implements UserDetailsService {
         this.taiKhoanRepository = taiKhoanRepository;
     }
 
-    //    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        System.out.println("🔍 Kiểm tra đăng nhập: " + username); // Log username đăng nhập
-//        TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản"));
-//
-//        System.out.println("Tìm thấy tài khoản: " + taiKhoan.getTenDangNhap());
-//        System.out.println("Quyền: " + taiKhoan.getLoaiTaiKhoan()); // In ra roles của user
-//
-//        return new org.springframework.security.core.userdetails.User(
-//                taiKhoan.getTenDangNhap(),
-//                taiKhoan.getMatKhau(),
-//                AuthorityUtils.createAuthorityList(taiKhoan.getLoaiTaiKhoan().name()) // Thêm prefix ROLE_
-//        );
-//
-//    }
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        System.out.println("Kiểm tra đăng nhập: " + username); // Log username đăng nhập
-//        TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản"));
-//
-//        System.out.println("Tìm thấy tài khoản: " + taiKhoan.getTenDangNhap());
-//        System.out.println("Quyền: " + taiKhoan.getLoaiTaiKhoan()); // In ra roles của user
-//
-//        // ✅ Trả về chính `TaiKhoan` vì nó đã implement `UserDetails`
-//        return taiKhoan;
-//    }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(username)
@@ -72,7 +44,7 @@ public class TaiKhoanDetailsService implements UserDetailsService {
             TaiKhoan user = userOpt.get();
 
             // Kiểm tra mật khẩu cũ có đúng không
-            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            if (!passwordEncoder.matches(oldPassword, user.getMatKhau())) {
                 return false; // Mật khẩu cũ không khớp
             }
 

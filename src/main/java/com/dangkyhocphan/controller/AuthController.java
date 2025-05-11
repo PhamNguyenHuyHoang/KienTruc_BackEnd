@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ public class AuthController {
         this.taiKhoanDetailsService = taiKhoanDetailsService;
         this.sinhVienRepository = sinhVienRepository;
     }
+
     // Đăng nhập
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody TaiKhoan taiKhoan) {
@@ -71,12 +73,15 @@ public class AuthController {
             String token = jwtUtil.generateToken(userDetails);
 
 //            return ResponseEntity.ok(token);
-            return ResponseEntity.ok(Map.of("token", token));
-
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "role", user.getLoaiTaiKhoan().name() // SINHVIEN hoặc QUANTRIVIEN));
+            ));
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body("Sai tên đăng nhập hoặc mật khẩu!");
         }
     }
+
     // Đăng ký
     @PostMapping("/register")
     @Transactional
@@ -105,13 +110,26 @@ public class AuthController {
         // Nếu tài khoản là sinh viên, tự động thêm vào bảng `sinh_vien`
         if (taiKhoan.getLoaiTaiKhoan().equals(LoaiTaiKhoan.SINHVIEN)) {
             SinhVien sinhVien = new SinhVien();
-            sinhVien.setMaSinhVien(taiKhoan.getTenDangNhap()); // Mã sinh viên trùng với tên đăng nhập
-            sinhVien.setEmail(taiKhoan.getTenDangNhap() + "@example.com"); // Email tạm
+            sinhVien.setMaSinhVien(taiKhoan.getTenDangNhap());
+            sinhVien.setHoTen("Cần cập nhật");
+            sinhVien.setEmail(taiKhoan.getTenDangNhap() + "@example.com");
+            sinhVien.setHoTen("Cần cập nhật");
+            sinhVien.setGioiTinh("Cần cập nhật");
+            sinhVien.setNgaySinh(LocalDate.of(2002, 1, 24));
+            sinhVien.setNoiSinh("Cần cập nhật");
+            sinhVien.setLopHoc("Cần cập nhật");
+            sinhVien.setKhoaHoc("Cần cập nhật");
+            sinhVien.setBacDaoTao("Cần cập nhật");
+            sinhVien.setLoaiHinhDaoTao("Cần cập nhật");
+            sinhVien.setNganh("Cần cập nhật");
+
+            sinhVien.setTaiKhoan(taiKhoan);
             sinhVienRepository.save(sinhVien);
         }
 
         return ResponseEntity.ok("Đăng ký thành công!");
     }
+
     // Đổi mật khẩu
     @PostMapping("/doimatkhau")
     public ResponseEntity<?> doiMatKhau(@RequestBody Map<String, String> request) {

@@ -102,7 +102,7 @@ public class LopHocPhan {
     private String diaDiem;
 
     @Positive(message = "Số lượng sinh viên tối đa phải là số dương")
-    @Column(name = "so_luong_sv_toi_da")
+    @Column(name = "so_luong_sv_toi_da", nullable = false)
     private Integer soLuongSinhVienToiDa;
 
     @Column(name = "giang_vien")

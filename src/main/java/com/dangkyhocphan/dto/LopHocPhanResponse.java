@@ -65,11 +65,16 @@ public class LopHocPhanResponse {
     @NotBlank(message = "Tiết kết thúc không được để trống")
     private String tietKetThuc;
 
+    @Positive(message = "Số lượng sinh viên tối đa phải là số dương")
     @NotBlank(message = "Địa điểm không được để trống")
     private String diaDiem;
 
     @Positive(message = "Số lượng sinh viên tối đa phải là số dương")
     private Integer soLuongSinhVienToiDa;
+
+    @Positive(message = "Số lượng đã dang ký phải là số dương")
+    private Integer soLuongDaDangKy;
+
 
     private String giangVien;
 
@@ -77,6 +82,6 @@ public class LopHocPhanResponse {
     @NotBlank(message = "Mã môn học không được để trống")
     private String maMonHoc;
     private String tenMonHoc;
-
+    private int soTinChi;
 
 }
