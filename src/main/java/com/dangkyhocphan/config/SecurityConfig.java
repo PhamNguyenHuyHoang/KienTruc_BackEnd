@@ -92,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/lophocphan/sinhvien/{maSinhVien}").hasAuthority("SINHVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/me/tinchi-theo-monhoc").hasAuthority("SINHVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/me").hasAuthority("SINHVIEN")
+                        .requestMatchers(HttpMethod.GET, "/api/sinhvien/tien-do-hoc-tap").hasAuthority("SINHVIEN")
 
                         // 👑 Các endpoint dành cho QUANTRIVIEN
                         .requestMatchers("/api/sinhvien/**").hasAuthority("QUANTRIVIEN")

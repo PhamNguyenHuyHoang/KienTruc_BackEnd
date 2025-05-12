@@ -3,10 +3,12 @@ package com.dangkyhocphan.controller;
 import com.dangkyhocphan.model.LoaiTaiKhoan;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.model.TaiKhoan;
+import com.dangkyhocphan.repository.NganhHocRepository;
 import com.dangkyhocphan.repository.SinhVienRepository;
 import com.dangkyhocphan.repository.TaiKhoanRepository;
 import com.dangkyhocphan.security.JwtUtil;
 import com.dangkyhocphan.security.TaiKhoanDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +29,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    @Autowired
+    private NganhHocRepository nganhHocRepository;
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -121,7 +125,12 @@ public class AuthController {
             sinhVien.setKhoaHoc("Cần cập nhật");
             sinhVien.setBacDaoTao("Cần cập nhật");
             sinhVien.setLoaiHinhDaoTao("Cần cập nhật");
-            sinhVien.setNganh("Cần cập nhật");
+//            sinhVien.setNganhHoc(
+//                    nganhHocRepository.findById("CNTT")
+//                            .orElseThrow(() -> new RuntimeException("Không tìm thấy ngành CNTT"))
+//            );
+
+
 
             sinhVien.setTaiKhoan(taiKhoan);
             sinhVienRepository.save(sinhVien);

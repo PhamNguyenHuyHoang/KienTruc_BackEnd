@@ -1,5 +1,7 @@
 package com.dangkyhocphan.controller;
 
+import com.dangkyhocphan.dto.ProgressDTO;
+import com.dangkyhocphan.dto.SinhVienDTO;
 import com.dangkyhocphan.dto.SinhVienSelfUpdateDTO;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.repository.SinhVienRepository;
@@ -36,6 +38,7 @@ public class SinhVienController {
     }
 
     @GetMapping("/{maSinhVien}")
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<SinhVien> getSinhVienById(@PathVariable String maSinhVien) {
         Optional<SinhVien> sinhVien = sinhVienService.getSinhVienById(maSinhVien);
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -48,45 +51,44 @@ public class SinhVienController {
 //        Optional<SinhVien> sv = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
 //        if (sv.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
 //        return ResponseEntity.ok(sv.get());
-//    }
-public record SinhVienDTO(
-        String maSinhVien,
-        String hoTen,
-        String email,
-        String gioiTinh,
-        LocalDate ngaySinh,
-        String noiSinh,
-        String lopHoc,
-        String khoaHoc,
-        String bacDaoTao,
-        String loaiHinhDaoTao,
-        String nganh,
-        String tenDangNhap
-) {}
+    // DÙNG
+@GetMapping("/me")
+@PreAuthorize("hasAuthority('SINHVIEN')")
+public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
+    String tenDangNhap = authentication.getName();
+    Optional<SinhVien> svOpt = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
+    if (svOpt.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
 
-    @GetMapping("/me")
+    SinhVien sv = svOpt.get();
+    String tenNganh = sv.getNganhHoc() != null ? sv.getNganhHoc().getTenNganh() : null;
+
+    SinhVienDTO dto = new SinhVienDTO(
+            sv.getMaSinhVien(),
+            sv.getHoTen(),
+            sv.getEmail(),
+            sv.getGioiTinh(),
+            sv.getNgaySinh(),
+            sv.getNoiSinh(),
+            sv.getLopHoc(),
+            sv.getKhoaHoc(),
+            sv.getBacDaoTao(),
+            sv.getLoaiHinhDaoTao(),
+            sv.getNganhHoc() != null ? sv.getNganhHoc().getMaNganh() : null,
+            tenNganh,
+            sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTenDangNhap() : null,
+            sv.getAvatarUrl()
+    );
+
+    return ResponseEntity.ok(dto);
+}
+
+    // DÙNG
+    @GetMapping("/tien-do-hoc-tap")
     @PreAuthorize("hasAuthority('SINHVIEN')")
-    public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
+    public ResponseEntity<?> getTienDoHocTap(Authentication authentication) {
         String tenDangNhap = authentication.getName();
-        Optional<SinhVien> svOpt = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
-        if (svOpt.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
-
-        SinhVien sv = svOpt.get();
-        SinhVienDTO dto = new SinhVienDTO(
-                sv.getMaSinhVien(),
-                sv.getHoTen(),
-                sv.getEmail(),
-                sv.getGioiTinh(),
-                sv.getNgaySinh(),
-                sv.getNoiSinh(),
-                sv.getLopHoc(),
-                sv.getKhoaHoc(),
-                sv.getBacDaoTao(),
-                sv.getLoaiHinhDaoTao(),
-                sv.getNganh(),
-                sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTenDangNhap() : null
-        );
-        return ResponseEntity.ok(dto);
+        ProgressDTO progress = sinhVienService.getTienDoHocTap(tenDangNhap);
+        return ResponseEntity.ok(progress);
     }
 
     @GetMapping("/email/{email}")
@@ -140,4 +142,6 @@ public record SinhVienDTO(
             return sinhVienService.quanTriVienCapNhatThongTin(maSinhVien, dto);
         }
     }
+
+
 }

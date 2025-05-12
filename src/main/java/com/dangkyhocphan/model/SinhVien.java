@@ -33,7 +33,14 @@ public class SinhVien {
     private String khoaHoc;
     private String bacDaoTao;
     private String loaiHinhDaoTao;
-    private String nganh;
+//    private String nganh;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "ma_nganh")
+    private NganhHoc nganhHoc;
+
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "ten_Dang_Nhap", referencedColumnName = "tenDangNhap")

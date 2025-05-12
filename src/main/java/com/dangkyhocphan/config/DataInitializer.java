@@ -20,18 +20,37 @@ public class DataInitializer {
             MonHocRepository monHocRepo,
             MonHocTienQuyetRepository monHocTienQuyetRepo,
             HocKyRepository hocKyRepo,
+            NganhHocRepository nganhHocRepo,
             LopHocPhanRepository lopHocPhanRepo) {
         return args -> {
             System.out.println("Initializing data...");
             // Tạo tài khoản
-            TaiKhoan svAccount = new TaiKhoan("TK005", "sv002", "123456", LoaiTaiKhoan.SINHVIEN);
-            TaiKhoan qtvAccount = new TaiKhoan("TK006", "qtv001", "123456", LoaiTaiKhoan.QUANTRIVIEN);
+            TaiKhoan svAccount = new TaiKhoan("TK005", "sv002", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.SINHVIEN);
+            TaiKhoan qtvAccount = new TaiKhoan("TK006", "qtv001", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.QUANTRIVIEN);
             taiKhoanRepo.saveAll(List.of(svAccount, qtvAccount));
             System.out.println("Tai Khoan saved");
 
+            // Tạo ngành học
+            List<NganhHoc> dsNganh = List.of(
+                    new NganhHoc("CNTT", "Công nghệ thông tin", 120, "Hệ thống, lập trình, mạng máy tính."),
+                    new NganhHoc("KTPM", "Kỹ thuật phần mềm", 125, "Phát triển và quản lý phần mềm."),
+                    new NganhHoc("AI", "Trí tuệ nhân tạo", 130, "Machine learning, deep learning và dữ liệu lớn."),
+                    new NganhHoc("ATTT", "An toàn thông tin", 122, "Bảo mật hệ thống, mã hóa và phân tích rủi ro."),
+                    new NganhHoc("HTTT", "Hệ thống thông tin", 118, "Thiết kế hệ thống, quản trị và tích hợp dữ liệu."),
+                    new NganhHoc("CNĐPT", "Công nghệ đa phương tiện", 115, "Thiết kế đồ họa, âm thanh và video số."),
+                    new NganhHoc("KHMT", "Khoa học máy tính", 124, "Giải thuật, ngôn ngữ lập trình và kiến trúc máy tính."),
+                    new NganhHoc("CNPC", "Công nghệ phần cứng", 119, "Thiết kế vi mạch, phần cứng và hệ thống nhúng."),
+                    new NganhHoc("THUD", "Tin học ứng dụng", 110, "Ứng dụng CNTT trong các lĩnh vực khác."),
+                    new NganhHoc("PTDL", "Phân tích dữ liệu", 128, "Khai phá dữ liệu, thống kê và trực quan hóa.")
+            );
+            nganhHocRepo.saveAll(dsNganh);
+            System.out.println("NganhHoc saved");
+
+
+
             // Tạo sinh viên đầy đủ thông tin
             SinhVien sv = new SinhVien();
-            sv.setMaSinhVien("SV002");
+            sv.setMaSinhVien("sv002");
             sv.setHoTen("Nguyễn Văn A");
             sv.setEmail("sinhvien@example.com");
             sv.setTaiKhoan(svAccount);
@@ -42,7 +61,11 @@ public class DataInitializer {
             sv.setKhoaHoc("2020 - 2021");
             sv.setBacDaoTao("Dai hoc");
             sv.setLoaiHinhDaoTao("Chính quy");
-            sv.setNganh("Ky thuật phần mềm");
+            sv.setNganhHoc(
+                    nganhHocRepo.findById("CNTT")
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy ngành CNTT"))
+            );
+            sv.setAvatarUrl("https://i.imgur.com/63xBHKu.png");
             sinhVienRepo.save(sv);
             System.out.println("SinhVien saved");
 

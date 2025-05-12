@@ -1,5 +1,6 @@
 package com.dangkyhocphan.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +19,6 @@ public class SinhVienSelfUpdateDTO {
     private LocalDate ngaySinh;
     private String noiSinh;
     private String lopHoc;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 }

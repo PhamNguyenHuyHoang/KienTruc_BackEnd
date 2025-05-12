@@ -1,10 +1,15 @@
 package com.dangkyhocphan.service;
 
+import com.dangkyhocphan.dto.ProgressDTO;
 import com.dangkyhocphan.dto.SinhVienSelfUpdateDTO;
+import com.dangkyhocphan.model.NganhHoc;
 import com.dangkyhocphan.model.SinhVien;
 import com.dangkyhocphan.model.TaiKhoan;
+import com.dangkyhocphan.repository.DangKyHocPhanRepository;
+import com.dangkyhocphan.repository.NganhHocRepository;
 import com.dangkyhocphan.repository.SinhVienRepository;
 import com.dangkyhocphan.repository.TaiKhoanRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,11 +30,17 @@ public class SinhVienService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private TaiKhoanRepository taiKhoanRepository;
+    @Autowired
+    private DangKyHocPhanRepository dangKyHocPhanRepository;
+    @Autowired
+    private NganhHocRepository nganhHocRepository;
+
 
     public List<SinhVien> getAllSinhVien() {
         return sinhVienRepository.findAll();
     }
 
+    // DÙNG
     public Optional<SinhVien> getSinhVienById(String maSinhVien) {
         return sinhVienRepository.findById(maSinhVien);
     }
@@ -38,16 +49,32 @@ public class SinhVienService {
         return sinhVienRepository.findByEmail(email);
     }
 
-    @Transactional
-    public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
-        if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Mã sinh viên đã tồn tại!");
-        }
-
-        SinhVien sv = sinhVienRepository.save(sinhVien);
-        return ResponseEntity.status(HttpStatus.CREATED).body(sv);
+//    @Transactional
+//    public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
+//        if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body("Mã sinh viên đã tồn tại!");
+//        }
+//
+//        SinhVien sv = sinhVienRepository.save(sinhVien);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(sv);
+//    }
+@Transactional
+public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
+    if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Mã sinh viên đã tồn tại!");
     }
+
+    String maNganh = sinhVien.getNganhHoc().getMaNganh().trim();
+    NganhHoc nganh = nganhHocRepository.findById(maNganh)
+            .orElseThrow(() -> new EntityNotFoundException("Ngành học không tồn tại: " + maNganh));
+
+    sinhVien.setNganhHoc(nganh); // ánh xạ lại entity NganhHoc
+    sinhVienRepository.save(sinhVien);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(sinhVien);
+}
 
     @Transactional
     public ResponseEntity<?> xoaSinhVien(String maSinhVien) {
@@ -71,6 +98,7 @@ public class SinhVienService {
         return ResponseEntity.status(HttpStatus.OK).body("Đã xóa sinh viên thành công!");
     }
 
+    // DÙNG
     @Transactional
     public ResponseEntity<?> sinhVienCapNhatThongTin(String maSinhVien, SinhVienSelfUpdateDTO dto) {
         Optional<SinhVien> optionalSinhVien = sinhVienRepository.findById(maSinhVien);
@@ -85,6 +113,7 @@ public class SinhVienService {
         sinhVien.setGioiTinh(dto.getGioiTinh());
         sinhVien.setNgaySinh(dto.getNgaySinh());
         sinhVien.setNoiSinh(dto.getNoiSinh());
+        sinhVien.setAvatarUrl(dto.getAvatarUrl());  // ✅ thêm dòng này nếu chưa có
 
         sinhVienRepository.save(sinhVien);
 
@@ -103,7 +132,7 @@ public class SinhVienService {
         sv.setEmail(sinhVienMoi.getEmail());
         sv.setNoiSinh(sinhVienMoi.getNoiSinh());
         sv.setLopHoc(sinhVienMoi.getLopHoc());
-        sv.setNganh(sinhVienMoi.getNganh());
+//        sv.setMaNganh(sinhVienMoi.getNganhHoc().getMaNganh());
         sv.setLoaiHinhDaoTao(sinhVienMoi.getLoaiHinhDaoTao());
         sv.setBacDaoTao(sinhVienMoi.getBacDaoTao());
         sv.setKhoaHoc(sinhVienMoi.getKhoaHoc());
@@ -114,5 +143,22 @@ public class SinhVienService {
 
         return ResponseEntity.ok("Cập nhật thông tin toàn bộ thành công!");
     }
+
+    // DÙNG
+    public ProgressDTO getTienDoHocTap(String tenDangNhap) {
+        SinhVien sv = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
+
+        int accumulatedCredits = dangKyHocPhanRepository.findTinChiTheoMonHocBySinhVien(sv.getMaSinhVien()).stream()
+                .mapToInt(m -> (Integer) m.get("soTinChi"))
+                .sum();
+
+        int requiredCredits = sv.getNganhHoc() != null
+                ? sv.getNganhHoc().getSoTinChiTotNghiep()
+                : 120; // fallback nếu ngành bị thiếu
+
+        return new ProgressDTO(accumulatedCredits, requiredCredits);
+    }
+
 
 }
