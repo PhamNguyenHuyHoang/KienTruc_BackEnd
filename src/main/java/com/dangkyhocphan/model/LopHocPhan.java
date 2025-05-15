@@ -1,55 +1,5 @@
 package com.dangkyhocphan.model;
 
-//import jakarta.persistence.*;
-//import jakarta.validation.constraints.NotBlank;
-//import jakarta.validation.constraints.NotNull;
-//import jakarta.validation.constraints.Positive;
-//import lombok.*;
-//
-//@Entity
-//@Data
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@Getter
-//@Setter
-//@Table(name = "lop_hoc_phan")
-//public class LopHocPhan {
-//
-//    @Id
-//    @Column(name = "ma_lop_hoc_phan")
-//    private String maLopHocPhan;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "ma_mon_hoc", nullable = false)
-//    private MonHoc monHoc;
-//
-//    @NotBlank(message = "Tên lớp học phần không được để trống")
-//    @Column(name = "ten_lop_hoc_phan", nullable = false)
-//    private String tenLopHocPhan;
-//
-//    @NotBlank(message = "Học kỳ không được để trống")
-//    @Column(name = "hoc_ky", nullable = false)
-//    private String hocKy;
-//
-//    @NotNull(message = "Năm học không được để trống")
-//    @Column(name = "nam_hoc", nullable = false)
-//    private Integer namHoc;
-//
-//    @Column(name = "thoi_gian")
-//    private String thoiGian;
-//
-//    @Column(name = "dia_diem")
-//    private String diaDiem;
-//
-//    @Positive(message = "Số lượng sinh viên tối đa phải là số dương")
-//    @Column(name = "so_luong_sv_toi_da")
-//    private Integer soLuongSinhVienToiDa;
-//
-//    @Column(name = "giang_vien")
-//    private String giangVien;
-//
-//}
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

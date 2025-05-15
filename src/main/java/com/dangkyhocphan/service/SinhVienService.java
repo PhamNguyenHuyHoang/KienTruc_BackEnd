@@ -49,7 +49,7 @@ public class SinhVienService {
         return sinhVienRepository.findByEmail(email);
     }
 
-//    @Transactional
+    //    @Transactional
 //    public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
 //        if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -59,22 +59,20 @@ public class SinhVienService {
 //        SinhVien sv = sinhVienRepository.save(sinhVien);
 //        return ResponseEntity.status(HttpStatus.CREATED).body(sv);
 //    }
-@Transactional
-public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
-    if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Mã sinh viên đã tồn tại!");
+    @Transactional
+    public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
+        if (sinhVienRepository.existsById(sinhVien.getMaSinhVien())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã sinh viên đã tồn tại!");
+        }
+
+        String maNganh = sinhVien.getNganhHoc().getMaNganh().trim();
+        NganhHoc nganh = nganhHocRepository.findById(maNganh).orElseThrow(() -> new EntityNotFoundException("Ngành học không tồn tại: " + maNganh));
+
+        sinhVien.setNganhHoc(nganh); // ánh xạ lại entity NganhHoc
+        sinhVienRepository.save(sinhVien);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(sinhVien);
     }
-
-    String maNganh = sinhVien.getNganhHoc().getMaNganh().trim();
-    NganhHoc nganh = nganhHocRepository.findById(maNganh)
-            .orElseThrow(() -> new EntityNotFoundException("Ngành học không tồn tại: " + maNganh));
-
-    sinhVien.setNganhHoc(nganh); // ánh xạ lại entity NganhHoc
-    sinhVienRepository.save(sinhVien);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(sinhVien);
-}
 
     @Transactional
     public ResponseEntity<?> xoaSinhVien(String maSinhVien) {
@@ -103,8 +101,7 @@ public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
     public ResponseEntity<?> sinhVienCapNhatThongTin(String maSinhVien, SinhVienSelfUpdateDTO dto) {
         Optional<SinhVien> optionalSinhVien = sinhVienRepository.findById(maSinhVien);
         if (optionalSinhVien.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Không tìm thấy sinh viên!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy sinh viên!");
         }
 
         SinhVien sinhVien = optionalSinhVien.get();
@@ -146,16 +143,11 @@ public ResponseEntity<?> themSinhVien(SinhVien sinhVien) {
 
     // DÙNG
     public ProgressDTO getTienDoHocTap(String tenDangNhap) {
-        SinhVien sv = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
+        SinhVien sv = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap).orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
 
-        int accumulatedCredits = dangKyHocPhanRepository.findTinChiTheoMonHocBySinhVien(sv.getMaSinhVien()).stream()
-                .mapToInt(m -> (Integer) m.get("soTinChi"))
-                .sum();
+        int accumulatedCredits = dangKyHocPhanRepository.findTinChiTheoMonHocBySinhVien(sv.getMaSinhVien()).stream().mapToInt(m -> (Integer) m.get("soTinChi")).sum();
 
-        int requiredCredits = sv.getNganhHoc() != null
-                ? sv.getNganhHoc().getSoTinChiTotNghiep()
-                : 120; // fallback nếu ngành bị thiếu
+        int requiredCredits = sv.getNganhHoc() != null ? sv.getNganhHoc().getSoTinChiTotNghiep() : 120; // fallback nếu ngành bị thiếu
 
         return new ProgressDTO(accumulatedCredits, requiredCredits);
     }

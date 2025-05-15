@@ -79,6 +79,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/hocky/current").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/{maSinhVien}").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/time-valid").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
+                        .requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
+                        .requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung/{maNganh}/{maMonHoc}").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
+
 
                         // 🎓 Các endpoint dành cho SINHVIEN
                         .requestMatchers(HttpMethod.POST, "/api/dangkyhocphan/dangky/me").hasAuthority("SINHVIEN")
@@ -105,8 +108,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/monhoc/**").hasAuthority("QUANTRIVIEN")
                         .requestMatchers(HttpMethod.PUT, "/api/lophocphan/**").hasAuthority("QUANTRIVIEN")
                         .requestMatchers("/api/lichhoc/**").hasAuthority("QUANTRIVIEN")
-
-
+                        .requestMatchers("/api/nganhhoc/**").hasAuthority("QUANTRIVIEN")
+                        .requestMatchers("/api/chuongtrinhkhung/**").hasAuthority("QUANTRIVIEN")
                         // 🔒 Các endpoint còn lại yêu cầu xác thực
                         .anyRequest().authenticated()
                 )
@@ -122,7 +125,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Cho phép React
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001"));// Cho phép React
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // Nếu frontend có gửi cookie

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -21,9 +22,22 @@ public class DataInitializer {
             MonHocTienQuyetRepository monHocTienQuyetRepo,
             HocKyRepository hocKyRepo,
             NganhHocRepository nganhHocRepo,
+            ChuongTrinhKhungRepository ctkkRepo,
             LopHocPhanRepository lopHocPhanRepo) {
         return args -> {
             System.out.println("Initializing data...");
+            // xóa hết dữ liệu các bảng (chú ý thứ tự phải tuân cascade / FK)
+//            dangKyHocPhanRepo.deleteAll();
+//            lichHocRepo.deleteAll();
+            lopHocPhanRepo.deleteAll();
+            monHocTienQuyetRepo.deleteAll();
+            monHocRepo.deleteAll();
+            sinhVienRepo.deleteAll();
+            quanTriVienRepo.deleteAll();
+            taiKhoanRepo.deleteAll();
+            nganhHocRepo.deleteAll();
+            hocKyRepo.deleteAll();
+
             // Tạo tài khoản
             TaiKhoan svAccount = new TaiKhoan("TK005", "sv002", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.SINHVIEN);
             TaiKhoan qtvAccount = new TaiKhoan("TK006", "qtv001", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.QUANTRIVIEN);
@@ -34,18 +48,18 @@ public class DataInitializer {
             List<NganhHoc> dsNganh = List.of(
                     new NganhHoc("CNTT", "Công nghệ thông tin", 120, "Hệ thống, lập trình, mạng máy tính."),
                     new NganhHoc("KTPM", "Kỹ thuật phần mềm", 125, "Phát triển và quản lý phần mềm."),
-                    new NganhHoc("AI", "Trí tuệ nhân tạo", 130, "Machine learning, deep learning và dữ liệu lớn."),
-                    new NganhHoc("ATTT", "An toàn thông tin", 122, "Bảo mật hệ thống, mã hóa và phân tích rủi ro."),
-                    new NganhHoc("HTTT", "Hệ thống thông tin", 118, "Thiết kế hệ thống, quản trị và tích hợp dữ liệu."),
-                    new NganhHoc("CNĐPT", "Công nghệ đa phương tiện", 115, "Thiết kế đồ họa, âm thanh và video số."),
-                    new NganhHoc("KHMT", "Khoa học máy tính", 124, "Giải thuật, ngôn ngữ lập trình và kiến trúc máy tính."),
-                    new NganhHoc("CNPC", "Công nghệ phần cứng", 119, "Thiết kế vi mạch, phần cứng và hệ thống nhúng."),
-                    new NganhHoc("THUD", "Tin học ứng dụng", 110, "Ứng dụng CNTT trong các lĩnh vực khác."),
-                    new NganhHoc("PTDL", "Phân tích dữ liệu", 128, "Khai phá dữ liệu, thống kê và trực quan hóa.")
+                    new NganhHoc("AI", "Trí tuệ nhân tạo", 130, "Machine learning, deep learning và dữ liệu lớn.")
+                    //,
+//                    new NganhHoc("ATTT", "An toàn thông tin", 122, "Bảo mật hệ thống, mã hóa và phân tích rủi ro."),
+//                    new NganhHoc("HTTT", "Hệ thống thông tin", 118, "Thiết kế hệ thống, quản trị và tích hợp dữ liệu."),
+//                    new NganhHoc("CNĐPT", "Công nghệ đa phương tiện", 115, "Thiết kế đồ họa, âm thanh và video số."),
+//                    new NganhHoc("KHMT", "Khoa học máy tính", 124, "Giải thuật, ngôn ngữ lập trình và kiến trúc máy tính."),
+//                    new NganhHoc("CNPC", "Công nghệ phần cứng", 119, "Thiết kế vi mạch, phần cứng và hệ thống nhúng."),
+//                    new NganhHoc("THUD", "Tin học ứng dụng", 110, "Ứng dụng CNTT trong các lĩnh vực khác."),
+//                    new NganhHoc("PTDL", "Phân tích dữ liệu", 128, "Khai phá dữ liệu, thống kê và trực quan hóa.")
             );
             nganhHocRepo.saveAll(dsNganh);
             System.out.println("NganhHoc saved");
-
 
 
             // Tạo sinh viên đầy đủ thông tin
@@ -70,14 +84,43 @@ public class DataInitializer {
             System.out.println("SinhVien saved");
 
             // Tạo quản trị viên
-            QuanTriVien qtv = new QuanTriVien("QTV001", "Admin User", "admin@example.com", qtvAccount);
+            QuanTriVien qtv = new QuanTriVien("qtv001", "Admin User", "admin@example.com", qtvAccount);
             quanTriVienRepo.save(qtv);
             System.out.println("QuanTriVien saved");
 
             // Tạo môn học
+//            MonHoc java = new MonHoc("MH001", "Lập trình Java", 3, "Cơ bản về lập trình Java", List.of(), 30, 15, "Đang mở");
+//            MonHoc cplusplus = new MonHoc("MH002", "Lập trình C++", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang mở");
+//            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang đóng");
+//            MonHoc html = new MonHoc("MH004", "Thiết kế Web với HTML/CSS", 2, "Thiết kế giao diện web cơ bản", List.of(), 30, 15, "Đang mở");
+//            MonHoc sql = new MonHoc("MH005", "Cơ sở dữ liệu SQL", 3, "Quản lý cơ sở dữ liệu quan hệ", List.of(), 35, 15, "Đang mở");
+//            MonHoc ai = new MonHoc("MH006", "Trí tuệ nhân tạo", 4, "Giới thiệu về AI", List.of(), 25, 10, "Đang đóng");
+//            MonHoc ml = new MonHoc("MH007", "Học máy cơ bản", 4, "Thuật toán học máy", List.of(), 30, 10, "Đang mở");
+//            MonHoc ds = new MonHoc("MH008", "Cấu trúc dữ liệu", 3, "Học các cấu trúc dữ liệu cơ bản", List.of(), 30, 10, "Đang mở");
+//            MonHoc algo = new MonHoc("MH009", "Giải thuật", 3, "Thiết kế và phân tích thuật toán", List.of(), 30, 10, "Đang mở");
+//            MonHoc network = new MonHoc("MH010", "Mạng máy tính", 3, "Cơ bản về mạng", List.of(), 30, 10, "Đang đóng");
+//            MonHoc os = new MonHoc("MH011", "Hệ điều hành", 3, "Quản lý tài nguyên hệ thống", List.of(), 30, 10, "Đang mở");
+//            MonHoc se = new MonHoc("MH012", "Kỹ thuật phần mềm", 3, "Quản lý quy trình phát triển phần mềm", List.of(), 30, 10, "Đang đóng");
+//            MonHoc eng = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT", 2, "Từ vựng và kỹ năng giao tiếp CNTT", List.of(), 35, 10, "Đang đóng");
+//            monHocRepo.saveAll(List.of(java, cplusplus, python, html, sql, ai, ml, ds, algo, network, os, se, eng));
+//            System.out.println("MonHoc saved");
+            // TẠO SẴN ĐỐI TƯỢNG MonHoc (chưa lưu)
+//            MonHoc java       = new MonHoc("MH001", "Lập trình Java",            3, "Cơ bản về lập trình Java",               List.of(), 30, 15, "Đang mở");
+//            MonHoc cplusplus  = new MonHoc("MH002", "Lập trình C++",             3, "Cơ bản về lập trình C++",               List.of(), 30, 15, "Đang mở");
+//            MonHoc python     = new MonHoc("MH003", "Lập trình Python",          3, "Cơ bản về lập trình Python",            List.of(), 30, 15, "Đang đóng");
+//            MonHoc html       = new MonHoc("MH004", "Thiết kế Web với HTML/CSS",  2, "Thiết kế giao diện web cơ bản",         List.of(), 30, 15, "Đang mở");
+//            MonHoc sql        = new MonHoc("MH005", "Cơ sở dữ liệu SQL",         3, "Quản lý cơ sở dữ liệu quan hệ",         List.of(), 35, 15, "Đang mở");
+//            MonHoc ai         = new MonHoc("MH006", "Trí tuệ nhân tạo",          4, "Giới thiệu về AI",                       List.of(), 25, 10, "Đang đóng");
+//            MonHoc ml         = new MonHoc("MH007", "Học máy cơ bản",            4, "Thuật toán học máy",                    List.of(), 30, 10, "Đang mở");
+//            MonHoc ds         = new MonHoc("MH008", "Cấu trúc dữ liệu",          3, "Học các cấu trúc dữ liệu cơ bản",       List.of(), 30, 10, "Đang mở");
+//            MonHoc algo       = new MonHoc("MH009", "Giải thuật",                3, "Thiết kế và phân tích thuật toán",      List.of(), 30, 10, "Đang mở");
+//            MonHoc network    = new MonHoc("MH010", "Mạng máy tính",            3, "Cơ bản về mạng",                        List.of(), 30, 10, "Đang đóng");
+//            MonHoc os         = new MonHoc("MH011", "Hệ điều hành",             3, "Quản lý tài nguyên hệ thống",           List.of(), 30, 10, "Đang mở");
+//            MonHoc se         = new MonHoc("MH012", "Kỹ thuật phần mềm",        3, "Quản lý quy trình phát triển phần mềm",List.of(), 30, 10, "Đang đóng");
+//            MonHoc eng        = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT",2, "Từ vựng và kỹ năng giao tiếp CNTT",     List.of(), 35, 10, "Đang đóng");
             MonHoc java = new MonHoc("MH001", "Lập trình Java", 3, "Cơ bản về lập trình Java", List.of(), 30, 15, "Đang mở");
             MonHoc cplusplus = new MonHoc("MH002", "Lập trình C++", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang mở");
-            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang đóng");
+            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình Python", List.of(), 30, 15, "Đang đóng");
             MonHoc html = new MonHoc("MH004", "Thiết kế Web với HTML/CSS", 2, "Thiết kế giao diện web cơ bản", List.of(), 30, 15, "Đang mở");
             MonHoc sql = new MonHoc("MH005", "Cơ sở dữ liệu SQL", 3, "Quản lý cơ sở dữ liệu quan hệ", List.of(), 35, 15, "Đang mở");
             MonHoc ai = new MonHoc("MH006", "Trí tuệ nhân tạo", 4, "Giới thiệu về AI", List.of(), 25, 10, "Đang đóng");
@@ -88,8 +131,27 @@ public class DataInitializer {
             MonHoc os = new MonHoc("MH011", "Hệ điều hành", 3, "Quản lý tài nguyên hệ thống", List.of(), 30, 10, "Đang mở");
             MonHoc se = new MonHoc("MH012", "Kỹ thuật phần mềm", 3, "Quản lý quy trình phát triển phần mềm", List.of(), 30, 10, "Đang đóng");
             MonHoc eng = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT", 2, "Từ vựng và kỹ năng giao tiếp CNTT", List.of(), 35, 10, "Đang đóng");
-            monHocRepo.saveAll(List.of(java, cplusplus, python, html, sql, ai, ml, ds, algo, network, os, se, eng));
-            System.out.println("MonHoc saved");
+
+// Môn bổ sung
+            MonHoc ptpm = new MonHoc("MH203", "Kiểm thử phần mềm", 3, "Các kỹ thuật kiểm thử và đảm bảo chất lượng.", List.of(), 25, 10, "Đang mở");
+            MonHoc qlduAn = new MonHoc("MH204", "Quản lý dự án phần mềm", 3, "Quản lý dự án và phương pháp Agile.", List.of(), 25, 10, "Đang mở");
+            MonHoc toanAI = new MonHoc("MH301", "Toán học cho AI", 4, "Đại số tuyến tính, xác suất thống kê.", List.of(), 30, 10, "Đang mở");
+            MonHoc mlCoBan = new MonHoc("MH302", "Machine Learning cơ bản", 4, "Các thuật toán học máy phổ biến.", List.of(), 30, 10, "Đang mở");
+            MonHoc nlp = new MonHoc("MH303", "Xử lý ngôn ngữ tự nhiên (NLP)", 3, "Cơ bản về NLP và ứng dụng.", List.of(), 25, 10, "Đang mở");
+            MonHoc deepLearning = new MonHoc("MH304", "Deep Learning", 4, "Mạng neuron sâu, học sâu.", List.of(), 30, 10, "Đang mở");
+            MonHoc ungDungAI = new MonHoc("MH305", "Ứng dụng AI", 3, "Các ứng dụng AI trong thực tế.", List.of(), 25, 10, "Đang mở");
+
+            // CHỈ LƯU KHI BẢNG TRỐNG
+            if (monHocRepo.count() == 0) {
+                monHocRepo.saveAll(List.of(
+                        java, cplusplus, python, html, sql,
+                        ai, ml, ds, algo, network,
+                        os, se, eng, ptpm, qlduAn, toanAI, mlCoBan, nlp, deepLearning, ungDungAI
+                ));
+                System.out.println("MonHoc saved");
+            } else {
+                System.out.println("Bảng mon_hoc đã có dữ liệu, bỏ qua bước insert");
+            }
 
             List<MonHocTienQuyet> tienQuyetList = List.of(
                     new MonHocTienQuyet(null, java, cplusplus),
@@ -107,9 +169,104 @@ public class DataInitializer {
             System.out.println("MonHocTienQuyet saved");
 
             // Tạo học kỳ
-            HocKy hkmodangky = new HocKy("HK2", "2024-2025", true);
-            hocKyRepo.save(hkmodangky);
+            List<HocKy> hkmodangky = List.of(
+                    new HocKy("HK1", "2024-2025", false),
+                    new HocKy("HK2", "2024-2025", true),
+                    new HocKy("HK3", "2024-2025", false)
+            );
+            hocKyRepo.saveAll(hkmodangky);
             System.out.println("HocKy saved");
+
+            // Lấy lại danh sách môn học để dùng
+            java = monHocRepo.findById("MH001").get();
+            cplusplus = monHocRepo.findById("MH002").get();
+            python = monHocRepo.findById("MH003").get();
+            html = monHocRepo.findById("MH004").get();
+            sql = monHocRepo.findById("MH005").get();
+            ai = monHocRepo.findById("MH006").get();
+            ml = monHocRepo.findById("MH007").get();
+            ds = monHocRepo.findById("MH008").get();
+            algo = monHocRepo.findById("MH009").get();
+            network = monHocRepo.findById("MH010").get();
+            os = monHocRepo.findById("MH011").get();
+            se = monHocRepo.findById("MH012").get();
+            eng = monHocRepo.findById("MH013").get();
+            ptpm = monHocRepo.findById("MH203").get();
+            qlduAn = monHocRepo.findById("MH204").get();
+            toanAI = monHocRepo.findById("MH301").get();
+            mlCoBan = monHocRepo.findById("MH302").get();
+            nlp = monHocRepo.findById("MH303").get();
+            deepLearning = monHocRepo.findById("MH304").get();
+            ungDungAI = monHocRepo.findById("MH305").get();
+
+
+            // Lấy học kỳ sẵn có (bạn có thể tạo trước hoặc lấy mặc định HK1, HK2...)
+            HocKy hk1 = hocKyRepo.findById("HK1").orElseThrow();
+            HocKy hk2 = hocKyRepo.findById("HK2").orElseThrow();
+            HocKy hk3 = hocKyRepo.findById("HK3").orElseThrow();
+
+            // Lấy ngành học
+            NganhHoc cntt = nganhHocRepo.findById("CNTT").orElseThrow();
+            NganhHoc ktpm = nganhHocRepo.findById("KTPM").orElseThrow();
+            NganhHoc aiNganh = nganhHocRepo.findById("AI").orElseThrow();
+            // Tạo danh sách link chương trình khung
+            List<ChuongTrinhKhung> dsCTKK = List.of(
+                    // CNTT (15 môn)
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH001"), cntt, java, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH002"), cntt, cplusplus, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH004"), cntt, html, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH009"), cntt, algo, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH010"), cntt, network, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH011"), cntt, os, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH013"), cntt, eng, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH003"), cntt, python, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH006"), cntt, ai, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH007"), cntt, ml, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH012"), cntt, se, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk3),
+
+                    // KTPM (15 môn)
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH001"), ktpm, java, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH002"), ktpm, cplusplus, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH012"), ktpm, se, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH009"), ktpm, algo, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH008"), ktpm, ds, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH011"), ktpm, os, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH005"), ktpm, sql, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH010"), ktpm, network, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH004"), ktpm, html, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH007"), ktpm, ml, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH006"), ktpm, ai, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH013"), ktpm, eng, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH003"), ktpm, python, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH203"), ktpm, ptpm, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH204"), ktpm, qlduAn, hk3),
+
+                    // AI (15 môn)
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH006"), aiNganh, ai, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH007"), aiNganh, ml, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH008"), aiNganh, ds, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH009"), aiNganh, algo, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH301"), aiNganh, toanAI, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH302"), aiNganh, mlCoBan, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH303"), aiNganh, nlp, hk2),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH304"), aiNganh, deepLearning, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH305"), aiNganh, ungDungAI, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH011"), aiNganh, os, hk1),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH004"), aiNganh, html, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH005"), aiNganh, sql, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH013"), aiNganh, eng, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH001"), aiNganh, java, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH002"), aiNganh, cplusplus, hk3)
+            );
+
+            // Lưu chương trình khung
+            ctkkRepo.saveAll(dsCTKK);
+            System.out.println("Đã tạo chương trình khung chi tiết cho 3 ngành CNTT, KTPM, AI.");
+
 
             // Tạo lớp học phần
             List<LopHocPhan> themLopHocPhan = List.of(

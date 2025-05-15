@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class SinhVienController {
         return sinhVien.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-//    @GetMapping("/me")
+    //    @GetMapping("/me")
 //    @PreAuthorize("hasAuthority('SINHVIEN')")
 //    public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
 //        String tenDangNhap = authentication.getName();
@@ -52,35 +51,35 @@ public class SinhVienController {
 //        if (sv.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
 //        return ResponseEntity.ok(sv.get());
     // DÙNG
-@GetMapping("/me")
-@PreAuthorize("hasAuthority('SINHVIEN')")
-public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
-    String tenDangNhap = authentication.getName();
-    Optional<SinhVien> svOpt = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
-    if (svOpt.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<?> getCurrentSinhVien(Authentication authentication) {
+        String tenDangNhap = authentication.getName();
+        Optional<SinhVien> svOpt = sinhVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
+        if (svOpt.isEmpty()) return ResponseEntity.status(404).body("Không tìm thấy sinh viên");
 
-    SinhVien sv = svOpt.get();
-    String tenNganh = sv.getNganhHoc() != null ? sv.getNganhHoc().getTenNganh() : null;
+        SinhVien sv = svOpt.get();
+        String tenNganh = sv.getNganhHoc() != null ? sv.getNganhHoc().getTenNganh() : null;
 
-    SinhVienDTO dto = new SinhVienDTO(
-            sv.getMaSinhVien(),
-            sv.getHoTen(),
-            sv.getEmail(),
-            sv.getGioiTinh(),
-            sv.getNgaySinh(),
-            sv.getNoiSinh(),
-            sv.getLopHoc(),
-            sv.getKhoaHoc(),
-            sv.getBacDaoTao(),
-            sv.getLoaiHinhDaoTao(),
-            sv.getNganhHoc() != null ? sv.getNganhHoc().getMaNganh() : null,
-            tenNganh,
-            sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTenDangNhap() : null,
-            sv.getAvatarUrl()
-    );
+        SinhVienDTO dto = new SinhVienDTO(
+                sv.getMaSinhVien(),
+                sv.getHoTen(),
+                sv.getEmail(),
+                sv.getGioiTinh(),
+                sv.getNgaySinh(),
+                sv.getNoiSinh(),
+                sv.getLopHoc(),
+                sv.getKhoaHoc(),
+                sv.getBacDaoTao(),
+                sv.getLoaiHinhDaoTao(),
+                sv.getNganhHoc() != null ? sv.getNganhHoc().getMaNganh() : null,
+                tenNganh,
+                sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTenDangNhap() : null,
+                sv.getAvatarUrl()
+        );
 
-    return ResponseEntity.ok(dto);
-}
+        return ResponseEntity.ok(dto);
+    }
 
     // DÙNG
     @GetMapping("/tien-do-hoc-tap")
