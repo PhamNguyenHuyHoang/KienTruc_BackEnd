@@ -30,6 +30,9 @@ public class ChuongTrinhKhung {
 //    private String hocKy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_hoc_ky")  // khóa ngoại đến HocKy
+    @JoinColumns({
+            @JoinColumn(name = "ma_hoc_ky", referencedColumnName = "ma_hoc_ky"),
+            @JoinColumn(name = "nam_hoc", referencedColumnName = "nam_hoc")
+    })
     private HocKy hocKy;
 }

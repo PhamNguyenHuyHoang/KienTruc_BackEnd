@@ -14,4 +14,8 @@ public class ChuongTrinhKhungDTO {
     private String tenMonHoc;
     private String maHocKy;
     private String namHoc;
+    private Integer soTinChi;
+    private Integer soTietLT;
+    private Integer soTietTH;
+
 }

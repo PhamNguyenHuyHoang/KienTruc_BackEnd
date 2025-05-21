@@ -29,19 +29,21 @@ public class DataInitializer {
             // xóa hết dữ liệu các bảng (chú ý thứ tự phải tuân cascade / FK)
 //            dangKyHocPhanRepo.deleteAll();
 //            lichHocRepo.deleteAll();
-            lopHocPhanRepo.deleteAll();
-            monHocTienQuyetRepo.deleteAll();
-            monHocRepo.deleteAll();
-            sinhVienRepo.deleteAll();
-            quanTriVienRepo.deleteAll();
-            taiKhoanRepo.deleteAll();
-            nganhHocRepo.deleteAll();
-            hocKyRepo.deleteAll();
+//            lopHocPhanRepo.deleteAll();
+//            monHocTienQuyetRepo.deleteAll();
+//            monHocRepo.deleteAll();
+//            sinhVienRepo.deleteAll();
+//            quanTriVienRepo.deleteAll();
+//            taiKhoanRepo.deleteAll();
+//            nganhHocRepo.deleteAll();
+//            hocKyRepo.deleteAll();
 
             // Tạo tài khoản
             TaiKhoan svAccount = new TaiKhoan("TK005", "sv002", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.SINHVIEN);
+            TaiKhoan svAccount1 = new TaiKhoan("TK008", "sv001", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.SINHVIEN);
             TaiKhoan qtvAccount = new TaiKhoan("TK006", "qtv001", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.QUANTRIVIEN);
-            taiKhoanRepo.saveAll(List.of(svAccount, qtvAccount));
+            TaiKhoan qtvAccount1 = new TaiKhoan("TK007", "qtv002", "$2a$12$n2RMtjiUZg9WzCtRx8lUPuwdt6GsPf3lI7QOhpOR/RIGIMlzjviMS", LoaiTaiKhoan.QUANTRIVIEN);
+            taiKhoanRepo.saveAll(List.of(svAccount,svAccount1,qtvAccount, qtvAccount1));
             System.out.println("Tai Khoan saved");
 
             // Tạo ngành học
@@ -69,18 +71,37 @@ public class DataInitializer {
             sv.setEmail("sinhvien@example.com");
             sv.setTaiKhoan(svAccount);
             sv.setGioiTinh("Nam");
-            sv.setNgaySinh(LocalDate.of(2002, 1, 24)); // YYYY-MM-DD
+            sv.setNgaySinh(LocalDate.of(2002, 1, 24));
             sv.setNoiSinh("Binh Thuận");
             sv.setLopHoc("DHKTPM16A");
             sv.setKhoaHoc("2020 - 2021");
-            sv.setBacDaoTao("Dai hoc");
+            sv.setBacDaoTao("Đại học");
             sv.setLoaiHinhDaoTao("Chính quy");
             sv.setNganhHoc(
                     nganhHocRepo.findById("CNTT")
                             .orElseThrow(() -> new RuntimeException("Không tìm thấy ngành CNTT"))
             );
             sv.setAvatarUrl("https://i.imgur.com/63xBHKu.png");
-            sinhVienRepo.save(sv);
+
+            SinhVien sv1 = new SinhVien();
+            sv1.setMaSinhVien("sv001");
+            sv1.setHoTen("Nguyễn Văn B");
+            sv1.setEmail("sinhvien1@example.com");
+            sv1.setTaiKhoan(svAccount1);
+            sv1.setGioiTinh("Nam");
+            sv1.setNgaySinh(LocalDate.of(2002, 1, 20));
+            sv1.setNoiSinh("Ninh Thuận");
+            sv1.setLopHoc("DHKTPM16B");
+            sv1.setKhoaHoc("2021 - 2025");
+            sv1.setBacDaoTao("Đại học");
+            sv1.setLoaiHinhDaoTao("Chính quy");
+            sv1.setNganhHoc(
+                    nganhHocRepo.findById("KTPM")
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy ngành CNTT"))
+            );
+            sv.setAvatarUrl("https://i.imgur.com/63xBHKu.png");
+
+            sinhVienRepo.saveAll(List.of(sv, sv1));
             System.out.println("SinhVien saved");
 
             // Tạo quản trị viên
@@ -89,50 +110,19 @@ public class DataInitializer {
             System.out.println("QuanTriVien saved");
 
             // Tạo môn học
-//            MonHoc java = new MonHoc("MH001", "Lập trình Java", 3, "Cơ bản về lập trình Java", List.of(), 30, 15, "Đang mở");
-//            MonHoc cplusplus = new MonHoc("MH002", "Lập trình C++", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang mở");
-//            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang đóng");
-//            MonHoc html = new MonHoc("MH004", "Thiết kế Web với HTML/CSS", 2, "Thiết kế giao diện web cơ bản", List.of(), 30, 15, "Đang mở");
-//            MonHoc sql = new MonHoc("MH005", "Cơ sở dữ liệu SQL", 3, "Quản lý cơ sở dữ liệu quan hệ", List.of(), 35, 15, "Đang mở");
-//            MonHoc ai = new MonHoc("MH006", "Trí tuệ nhân tạo", 4, "Giới thiệu về AI", List.of(), 25, 10, "Đang đóng");
-//            MonHoc ml = new MonHoc("MH007", "Học máy cơ bản", 4, "Thuật toán học máy", List.of(), 30, 10, "Đang mở");
-//            MonHoc ds = new MonHoc("MH008", "Cấu trúc dữ liệu", 3, "Học các cấu trúc dữ liệu cơ bản", List.of(), 30, 10, "Đang mở");
-//            MonHoc algo = new MonHoc("MH009", "Giải thuật", 3, "Thiết kế và phân tích thuật toán", List.of(), 30, 10, "Đang mở");
-//            MonHoc network = new MonHoc("MH010", "Mạng máy tính", 3, "Cơ bản về mạng", List.of(), 30, 10, "Đang đóng");
-//            MonHoc os = new MonHoc("MH011", "Hệ điều hành", 3, "Quản lý tài nguyên hệ thống", List.of(), 30, 10, "Đang mở");
-//            MonHoc se = new MonHoc("MH012", "Kỹ thuật phần mềm", 3, "Quản lý quy trình phát triển phần mềm", List.of(), 30, 10, "Đang đóng");
-//            MonHoc eng = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT", 2, "Từ vựng và kỹ năng giao tiếp CNTT", List.of(), 35, 10, "Đang đóng");
-//            monHocRepo.saveAll(List.of(java, cplusplus, python, html, sql, ai, ml, ds, algo, network, os, se, eng));
-//            System.out.println("MonHoc saved");
-            // TẠO SẴN ĐỐI TƯỢNG MonHoc (chưa lưu)
-//            MonHoc java       = new MonHoc("MH001", "Lập trình Java",            3, "Cơ bản về lập trình Java",               List.of(), 30, 15, "Đang mở");
-//            MonHoc cplusplus  = new MonHoc("MH002", "Lập trình C++",             3, "Cơ bản về lập trình C++",               List.of(), 30, 15, "Đang mở");
-//            MonHoc python     = new MonHoc("MH003", "Lập trình Python",          3, "Cơ bản về lập trình Python",            List.of(), 30, 15, "Đang đóng");
-//            MonHoc html       = new MonHoc("MH004", "Thiết kế Web với HTML/CSS",  2, "Thiết kế giao diện web cơ bản",         List.of(), 30, 15, "Đang mở");
-//            MonHoc sql        = new MonHoc("MH005", "Cơ sở dữ liệu SQL",         3, "Quản lý cơ sở dữ liệu quan hệ",         List.of(), 35, 15, "Đang mở");
-//            MonHoc ai         = new MonHoc("MH006", "Trí tuệ nhân tạo",          4, "Giới thiệu về AI",                       List.of(), 25, 10, "Đang đóng");
-//            MonHoc ml         = new MonHoc("MH007", "Học máy cơ bản",            4, "Thuật toán học máy",                    List.of(), 30, 10, "Đang mở");
-//            MonHoc ds         = new MonHoc("MH008", "Cấu trúc dữ liệu",          3, "Học các cấu trúc dữ liệu cơ bản",       List.of(), 30, 10, "Đang mở");
-//            MonHoc algo       = new MonHoc("MH009", "Giải thuật",                3, "Thiết kế và phân tích thuật toán",      List.of(), 30, 10, "Đang mở");
-//            MonHoc network    = new MonHoc("MH010", "Mạng máy tính",            3, "Cơ bản về mạng",                        List.of(), 30, 10, "Đang đóng");
-//            MonHoc os         = new MonHoc("MH011", "Hệ điều hành",             3, "Quản lý tài nguyên hệ thống",           List.of(), 30, 10, "Đang mở");
-//            MonHoc se         = new MonHoc("MH012", "Kỹ thuật phần mềm",        3, "Quản lý quy trình phát triển phần mềm",List.of(), 30, 10, "Đang đóng");
-//            MonHoc eng        = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT",2, "Từ vựng và kỹ năng giao tiếp CNTT",     List.of(), 35, 10, "Đang đóng");
             MonHoc java = new MonHoc("MH001", "Lập trình Java", 3, "Cơ bản về lập trình Java", List.of(), 30, 15, "Đang mở");
             MonHoc cplusplus = new MonHoc("MH002", "Lập trình C++", 3, "Cơ bản về lập trình C++", List.of(), 30, 15, "Đang mở");
-            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình Python", List.of(), 30, 15, "Đang đóng");
+            MonHoc python = new MonHoc("MH003", "Lập trình Python", 3, "Cơ bản về lập trình Python", List.of(), 30, 15, "Đang mở");
             MonHoc html = new MonHoc("MH004", "Thiết kế Web với HTML/CSS", 2, "Thiết kế giao diện web cơ bản", List.of(), 30, 15, "Đang mở");
             MonHoc sql = new MonHoc("MH005", "Cơ sở dữ liệu SQL", 3, "Quản lý cơ sở dữ liệu quan hệ", List.of(), 35, 15, "Đang mở");
-            MonHoc ai = new MonHoc("MH006", "Trí tuệ nhân tạo", 4, "Giới thiệu về AI", List.of(), 25, 10, "Đang đóng");
+            MonHoc ai = new MonHoc("MH006", "Trí tuệ nhân tạo", 4, "Giới thiệu về AI", List.of(), 25, 10, "Đang mở");
             MonHoc ml = new MonHoc("MH007", "Học máy cơ bản", 4, "Thuật toán học máy", List.of(), 30, 10, "Đang mở");
             MonHoc ds = new MonHoc("MH008", "Cấu trúc dữ liệu", 3, "Học các cấu trúc dữ liệu cơ bản", List.of(), 30, 10, "Đang mở");
             MonHoc algo = new MonHoc("MH009", "Giải thuật", 3, "Thiết kế và phân tích thuật toán", List.of(), 30, 10, "Đang mở");
-            MonHoc network = new MonHoc("MH010", "Mạng máy tính", 3, "Cơ bản về mạng", List.of(), 30, 10, "Đang đóng");
+            MonHoc network = new MonHoc("MH010", "Mạng máy tính", 3, "Cơ bản về mạng", List.of(), 30, 10, "Đang mở");
             MonHoc os = new MonHoc("MH011", "Hệ điều hành", 3, "Quản lý tài nguyên hệ thống", List.of(), 30, 10, "Đang mở");
-            MonHoc se = new MonHoc("MH012", "Kỹ thuật phần mềm", 3, "Quản lý quy trình phát triển phần mềm", List.of(), 30, 10, "Đang đóng");
-            MonHoc eng = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT", 2, "Từ vựng và kỹ năng giao tiếp CNTT", List.of(), 35, 10, "Đang đóng");
-
-// Môn bổ sung
+            MonHoc se = new MonHoc("MH012", "Kỹ thuật phần mềm", 3, "Quản lý quy trình phát triển phần mềm", List.of(), 30, 10, "Đang mở");
+            MonHoc eng = new MonHoc("MH013", "Tiếng Anh chuyên ngành CNTT", 2, "Từ vựng và kỹ năng giao tiếp CNTT", List.of(), 35, 10, "Đang mở");
             MonHoc ptpm = new MonHoc("MH203", "Kiểm thử phần mềm", 3, "Các kỹ thuật kiểm thử và đảm bảo chất lượng.", List.of(), 25, 10, "Đang mở");
             MonHoc qlduAn = new MonHoc("MH204", "Quản lý dự án phần mềm", 3, "Quản lý dự án và phương pháp Agile.", List.of(), 25, 10, "Đang mở");
             MonHoc toanAI = new MonHoc("MH301", "Toán học cho AI", 4, "Đại số tuyến tính, xác suất thống kê.", List.of(), 30, 10, "Đang mở");
@@ -170,11 +160,20 @@ public class DataInitializer {
 
             // Tạo học kỳ
             List<HocKy> hkmodangky = List.of(
-                    new HocKy("HK1", "2024-2025", false),
-                    new HocKy("HK2", "2024-2025", true),
-                    new HocKy("HK3", "2024-2025", false)
+                    new HocKy(new HocKyId("HK1", "2024-2025"), false),
+                    new HocKy(new HocKyId("HK2", "2024-2025"), true),
+                    new HocKy(new HocKyId("HK3", "2024-2025"), false),
+                    new HocKy(new HocKyId("HK1", "2023-2024"), false),
+                    new HocKy(new HocKyId("HK2", "2023-2024"), false),
+                    new HocKy(new HocKyId("HK3", "2023-2024"), false)
             );
-            hocKyRepo.saveAll(hkmodangky);
+            List<HocKy> toSave = hkmodangky.stream()
+                    .filter(hk -> !hocKyRepo.existsById(hk.getId()))
+                    .toList();
+
+            if (!toSave.isEmpty()) {
+                hocKyRepo.saveAll(toSave);
+            }
             System.out.println("HocKy saved");
 
             // Lấy lại danh sách môn học để dùng
@@ -201,9 +200,9 @@ public class DataInitializer {
 
 
             // Lấy học kỳ sẵn có (bạn có thể tạo trước hoặc lấy mặc định HK1, HK2...)
-            HocKy hk1 = hocKyRepo.findById("HK1").orElseThrow();
-            HocKy hk2 = hocKyRepo.findById("HK2").orElseThrow();
-            HocKy hk3 = hocKyRepo.findById("HK3").orElseThrow();
+            HocKy hk1_24 = hocKyRepo.findById(new HocKyId("HK1", "2024-2025")).orElseThrow();
+            HocKy hk2_24 = hocKyRepo.findById(new HocKyId("HK2", "2024-2025")).orElseThrow();
+            HocKy hk3_24 = hocKyRepo.findById(new HocKyId("HK3", "2024-2025")).orElseThrow();
 
             // Lấy ngành học
             NganhHoc cntt = nganhHocRepo.findById("CNTT").orElseThrow();
@@ -212,55 +211,55 @@ public class DataInitializer {
             // Tạo danh sách link chương trình khung
             List<ChuongTrinhKhung> dsCTKK = List.of(
                     // CNTT (15 môn)
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH001"), cntt, java, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH002"), cntt, cplusplus, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH004"), cntt, html, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH009"), cntt, algo, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH010"), cntt, network, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH011"), cntt, os, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH013"), cntt, eng, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH003"), cntt, python, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH006"), cntt, ai, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH007"), cntt, ml, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH012"), cntt, se, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH001"), cntt, java, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH002"), cntt, cplusplus, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH004"), cntt, html, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH009"), cntt, algo, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH010"), cntt, network, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH011"), cntt, os, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH013"), cntt, eng, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH003"), cntt, python, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH006"), cntt, ai, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH007"), cntt, ml, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH012"), cntt, se, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH005"), cntt, sql, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("CNTT", "MH008"), cntt, ds, hk3_24),
 
                     // KTPM (15 môn)
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH001"), ktpm, java, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH002"), ktpm, cplusplus, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH012"), ktpm, se, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH009"), ktpm, algo, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH008"), ktpm, ds, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH011"), ktpm, os, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH005"), ktpm, sql, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH010"), ktpm, network, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH004"), ktpm, html, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH007"), ktpm, ml, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH006"), ktpm, ai, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH013"), ktpm, eng, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH003"), ktpm, python, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH203"), ktpm, ptpm, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH204"), ktpm, qlduAn, hk3),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH001"), ktpm, java, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH002"), ktpm, cplusplus, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH012"), ktpm, se, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH009"), ktpm, algo, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH008"), ktpm, ds, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH011"), ktpm, os, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH005"), ktpm, sql, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH010"), ktpm, network, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH004"), ktpm, html, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH007"), ktpm, ml, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH006"), ktpm, ai, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH013"), ktpm, eng, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH003"), ktpm, python, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH203"), ktpm, ptpm, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("KTPM", "MH204"), ktpm, qlduAn, hk3_24),
 
                     // AI (15 môn)
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH006"), aiNganh, ai, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH007"), aiNganh, ml, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH008"), aiNganh, ds, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH009"), aiNganh, algo, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH301"), aiNganh, toanAI, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH302"), aiNganh, mlCoBan, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH303"), aiNganh, nlp, hk2),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH304"), aiNganh, deepLearning, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH305"), aiNganh, ungDungAI, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH011"), aiNganh, os, hk1),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH004"), aiNganh, html, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH005"), aiNganh, sql, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH013"), aiNganh, eng, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH001"), aiNganh, java, hk3),
-                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH002"), aiNganh, cplusplus, hk3)
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH006"), aiNganh, ai, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH007"), aiNganh, ml, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH008"), aiNganh, ds, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH009"), aiNganh, algo, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH301"), aiNganh, toanAI, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH302"), aiNganh, mlCoBan, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH303"), aiNganh, nlp, hk2_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH304"), aiNganh, deepLearning, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH305"), aiNganh, ungDungAI, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH011"), aiNganh, os, hk1_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH004"), aiNganh, html, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH005"), aiNganh, sql, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH013"), aiNganh, eng, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH001"), aiNganh, java, hk3_24),
+                    new ChuongTrinhKhung(new ChuongTrinhKhungId("AI", "MH002"), aiNganh, cplusplus, hk3_24)
             );
 
             // Lưu chương trình khung
@@ -270,75 +269,71 @@ public class DataInitializer {
 
             // Tạo lớp học phần
             List<LopHocPhan> themLopHocPhan = List.of(
-                    new LopHocPhan("LHP001", python, "DHKDDL18B", "HK1", "2024-2025",
+                    new LopHocPhan("LHP001", python, "DHKDDL18B", hk1_24, "2024-2025",
                             "Thứ 2", "Tiết 1", "Tiết 3", "A101", 50, "Nguyễn Văn T"),
-                    new LopHocPhan("LHP003", cplusplus, "DHDTMT17A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP002", cplusplus, "DHDTMT17A", hk1_24, "2024-2025",
                             "Thứ 3", "Tiết 5", "Tiết 7", "C301", 60, "Lê Văn C"),
-                    new LopHocPhan("LHP004", java, "DHKTMPM18A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP003", java, "DHKTMPM18A", hk2_24, "2024-2025",
                             "Thứ 4", "Tiết 8", "Tiết 10", "A102", 40, "Phạm Thị D"),
-                    new LopHocPhan("LHP004", java, "DHKTMPM18B", "HK2", "2024-2025",
+                    new LopHocPhan("LHP004", java, "DHKTMPM18B", hk2_24, "2024-2025",
                             "Thứ 4", "Tiết 8", "Tiết 10", "A103", 40, "Phạm Thị H"),
-                    new LopHocPhan("LHP005", html, "DHTKW21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP005", html, "DHTKW21A", hk1_24, "2024-2025",
                             "Thứ 5", "Tiết 2", "Tiết 3", "B103", 40, "Nguyễn Thị E"),
-                    new LopHocPhan("LHP006", sql, "DHCSDL21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP006", sql, "DHCSDL21A", hk1_24, "2024-2025",
                             "Thứ 6", "Tiết 5", "Tiết 6", "C204", 40, "Lê Văn F"),
-                    new LopHocPhan("LHP007", ai, "DHCTT21A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP007", ai, "DHCTT21A", hk2_24, "2024-2025",
                             "Thứ 2", "Tiết 7", "Tiết 9", "A301", 30, "Trần Văn G"),
-                    new LopHocPhan("LHP008", ml, "DHML21A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP008", ml, "DHML21A", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 7", "Tiết 9", "C101", 30, "Đặng Thị H"),
-                    new LopHocPhan("LHP009", ds, "DHCTDL21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP009", ds, "DHCTDL21A", hk1_24, "2024-2025",
                             "Thứ 4", "Tiết 3", "Tiết 5", "B302", 45, "Vũ Minh I"),
-                    new LopHocPhan("LHP010", algo, "DHGTTT21A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP010", algo, "DHGTTT21A", hk2_24, "2024-2025",
                             "Thứ 5", "Tiết 6", "Tiết 8", "A202", 35, "Hoàng Kim J"),
-                    new LopHocPhan("LHP011", network, "DHMANG21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP011", network, "DHMANG21A", hk1_24, "2024-2025",
                             "Thứ 6", "Tiết 1", "Tiết 2", "B203", 50, "Ngô Hữu K"),
-                    new LopHocPhan("LHP012", os, "DHHDH21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP012", os, "DHHDH21A", hk1_24, "2024-2025",
                             "Thứ 2", "Tiết 3", "Tiết 5", "C303", 45, "Phạm Thành L"),
-                    new LopHocPhan("LHP013", se, "DHKTPM21A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP013", se, "DHKTPM21A", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 6", "Tiết 8", "A105", 40, "Trịnh Thị M"),
-                    new LopHocPhan("LHP014", eng, "DHTA21A", "HK1", "2024-2025",
+                    new LopHocPhan("LHP014", eng, "DHTA21A", hk1_24, "2024-2025",
                             "Thứ 4", "Tiết 1", "Tiết 3", "B105", 50, "Nguyễn Văn N"),
-                    new LopHocPhan("LHP015", java, "DHKTMPM22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP015", java, "DHKTMPM22A", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 1", "Tiết 3", "A104", 40, "Nguyễn Văn P"),
-                    new LopHocPhan("LHP016", ai, "DHCTT22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP016", ai, "DHCTT22A", hk2_24, "2024-2025",
                             "Thứ 4", "Tiết 4", "Tiết 6", "B201", 35, "Lê Thị Q"),
-                    new LopHocPhan("LHP017", ml, "DHML22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP017", ml, "DHML22A", hk2_24, "2024-2025",
                             "Thứ 5", "Tiết 7", "Tiết 9", "C102", 30, "Trần Văn R"),
-                    new LopHocPhan("LHP018", se, "DHKTPM22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP018", se, "DHKTPM22A", hk2_24, "2024-2025",
                             "Thứ 6", "Tiết 2", "Tiết 4", "A106", 40, "Phạm Thị S"),
-                    new LopHocPhan("LHP019", algo, "DHGTTT22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP019", algo, "DHGTTT22A", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 6", "Tiết 8", "C205", 35, "Nguyễn Hữu T"),
-                    new LopHocPhan("LHP020", os, "DHHDH22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP020", os, "DHHDH22A", hk2_24, "2024-2025",
                             "Thứ 2", "Tiết 1", "Tiết 3", "C301", 45, "Ngô Minh U"),
-                    new LopHocPhan("LHP021", html, "DHTKW22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP021", html, "DHTKW22A", hk2_24, "2024-2025",
                             "Thứ 2", "Tiết 1", "Tiết 3", "B201", 40, "Nguyễn Văn A"),
-                    new LopHocPhan("LHP022", sql, "DHCSDL22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP022", sql, "DHCSDL22A", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 4", "Tiết 6", "C202", 40, "Trần Thị B"),
-                    new LopHocPhan("LHP023", python, "DHPYT22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP023", python, "DHPYT22A", hk2_24, "2024-2025",
                             "Thứ 4", "Tiết 2", "Tiết 4", "A203", 35, "Lê Văn C"),
-                    new LopHocPhan("LHP024", ds, "DHCTDL22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP024", ds, "DHCTDL22A", hk2_24, "2023-2024",
                             "Thứ 5", "Tiết 3", "Tiết 5", "B303", 45, "Phạm Minh D"),
-                    new LopHocPhan("LHP025", network, "DHMANG22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP025", network, "DHMANG22A", hk2_24, "2023-2024",
                             "Thứ 6", "Tiết 1", "Tiết 2", "C105", 50, "Nguyễn Thị E"),
-                    new LopHocPhan("LHP026", se, "DHKTPM22B", "HK2", "2024-2025",
+                    new LopHocPhan("LHP026", se, "DHKTPM22B", hk2_24, "2024-2025",
                             "Thứ 3", "Tiết 6", "Tiết 8", "A107", 40, "Hoàng Văn F"),
-                    new LopHocPhan("LHP027", ai, "DHCTT22B", "HK2", "2024-2025",
+                    new LopHocPhan("LHP027", ai, "DHCTT22B", hk2_24, "2024-2025",
                             "Thứ 4", "Tiết 7", "Tiết 9", "C106", 30, "Đặng Thị G"),
-                    new LopHocPhan("LHP028", ml, "DHML22B", "HK2", "2024-2025",
+                    new LopHocPhan("LHP028", ml, "DHML22B", hk2_24, "2023-2024",
                             "Thứ 5", "Tiết 5", "Tiết 7", "B204", 30, "Trần Văn H"),
-                    new LopHocPhan("LHP029", os, "DHHDH22B", "HK2", "2024-2025",
+                    new LopHocPhan("LHP029", os, "DHHDH22B", hk2_24, "2024-2025",
                             "Thứ 6", "Tiết 3", "Tiết 5", "C303", 45, "Phạm Văn I"),
-                    new LopHocPhan("LHP030", eng, "DHTA22A", "HK2", "2024-2025",
+                    new LopHocPhan("LHP030", eng, "DHTA22A", hk2_24, "2023-2024",
                             "Thứ 2", "Tiết 4", "Tiết 6", "B102", 50, "Nguyễn Văn K")
-
-
             );
-
 
             // Lưu danh sách lớp học phần
             lopHocPhanRepo.saveAll(themLopHocPhan);
             System.out.println("LopHocPhan saved");
-
 
         };
     }

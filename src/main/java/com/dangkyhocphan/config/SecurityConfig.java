@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/hocky/current").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/{maSinhVien}").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/time-valid").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
-                        .requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
+                        //.requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung/{maNganh}/{maMonHoc}").hasAnyAuthority("SINHVIEN", "QUANTRIVIEN")
 
 
@@ -96,6 +96,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/me/tinchi-theo-monhoc").hasAuthority("SINHVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/dangkyhocphan/sinhvien/me").hasAuthority("SINHVIEN")
                         .requestMatchers(HttpMethod.GET, "/api/sinhvien/tien-do-hoc-tap").hasAuthority("SINHVIEN")
+                        .requestMatchers(HttpMethod.GET, "/api/chuongtrinhkhung/me").hasAuthority("SINHVIEN")
 
                         // 👑 Các endpoint dành cho QUANTRIVIEN
                         .requestMatchers("/api/sinhvien/**").hasAuthority("QUANTRIVIEN")

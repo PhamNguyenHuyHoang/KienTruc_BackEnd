@@ -2,7 +2,6 @@ package com.dangkyhocphan.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,20 +22,26 @@ public class LopHocPhan {
     @Column(name = "ma_lop_hoc_phan", nullable = false, unique = true)
     private String maLopHocPhan;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_mon_hoc", nullable = false)
-    private MonHoc monHoc;
 
     @NotBlank(message = "Tên lớp học phần không được để trống")
     @Column(name = "ten_lop_hoc_phan", nullable = false)
     private String tenLopHocPhan;
 
-    @NotBlank(message = "Học kỳ không được để trống")
-    @Column(name = "hoc_ky", nullable = false)
-    private String hocKy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ma_mon_hoc", nullable = false)
+    private MonHoc monHoc;
 
-    @NotNull(message = "Năm học không được để trống")
-    @Column(name = "nam_hoc", nullable = false)
+    // Quan hệ ManyToOne với HocKy entity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "hoc_ky", referencedColumnName = "ma_hoc_ky"),
+            @JoinColumn(name = "nam_hoc", referencedColumnName = "nam_hoc")
+    })
+    private HocKy hocKy;
+
+
+    // Năm học giữ nguyên là String (lấy từ HocKy)
+    @Column(name = "nam_hoc", insertable = false, updatable = false)
     private String namHoc;
 
     @Column(name = "thu")  // VD: Thứ 2, Thứ 3,...
@@ -74,9 +79,49 @@ public class LopHocPhan {
     @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
-    public LopHocPhan(String maLopHocPhan, MonHoc monHoc, String tenLopHocPhan, String hocKy, String namHoc,
-                      String thu, String tietBatDau, String tietKetThuc, String diaDiem,
-                      Integer soLuongSinhVienToiDa, String giangVien) {
+//    public LopHocPhan(String maLopHocPhan, MonHoc monHoc, String tenLopHocPhan, String hocKy, String namHoc,
+//                      String thu, String tietBatDau, String tietKetThuc, String diaDiem,
+//                      Integer soLuongSinhVienToiDa, String giangVien) {
+//        this.maLopHocPhan = maLopHocPhan;
+//        this.monHoc = monHoc;
+//        this.tenLopHocPhan = tenLopHocPhan;
+//        this.hocKy = hocKy;
+//        this.namHoc = namHoc;
+//        this.thu = thu;
+//        this.tietBatDau = tietBatDau;
+//        this.tietKetThuc = tietKetThuc;
+//        this.diaDiem = diaDiem;
+//        this.soLuongSinhVienToiDa = soLuongSinhVienToiDa;
+//        this.giangVien = giangVien;
+//    }
+
+
+//    public LopHocPhan(String maLopHocPhan, String tenLopHocPhan, MonHoc monHoc, HocKy hocKy, String thu, String tietBatDau, String tietKetThuc, String diaDiem, Integer soLuongSinhVienToiDa, String giangVien, LocalDateTime ngayTao, LocalDateTime ngayCapNhat) {
+//        this.maLopHocPhan = maLopHocPhan;
+//        this.tenLopHocPhan = tenLopHocPhan;
+//        this.monHoc = monHoc;
+//        this.hocKy = hocKy;
+//        this.thu = thu;
+//        this.tietBatDau = tietBatDau;
+//        this.tietKetThuc = tietKetThuc;
+//        this.diaDiem = diaDiem;
+//        this.soLuongSinhVienToiDa = soLuongSinhVienToiDa;
+//        this.giangVien = giangVien;
+//        this.ngayTao = ngayTao;
+//        this.ngayCapNhat = ngayCapNhat;
+//    }
+
+    public LopHocPhan(String maLopHocPhan,
+                      MonHoc monHoc,
+                      String tenLopHocPhan,
+                      HocKy hocKy,
+                      String namHoc,
+                      String thu,
+                      String tietBatDau,
+                      String tietKetThuc,
+                      String diaDiem,
+                      Integer soLuongSinhVienToiDa,
+                      String giangVien) {
         this.maLopHocPhan = maLopHocPhan;
         this.monHoc = monHoc;
         this.tenLopHocPhan = tenLopHocPhan;

@@ -5,6 +5,7 @@ import com.dangkyhocphan.service.ChuongTrinhKhungService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,11 +16,20 @@ import java.util.List;
 public class ChuongTrinhKhungController {
     private final ChuongTrinhKhungService service;
 
+    // API lấy toàn bộ chương trình khung
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('QUANTRIVIEN', 'SINHVIEN')")
+    @PreAuthorize("hasAuthority('QUANTRIVIEN')")
     public ResponseEntity<List<ChuongTrinhKhungDTO>> getAll() {
         List<ChuongTrinhKhungDTO> list = service.getAllDto();
         return ResponseEntity.ok(list);
+    }
+
+    // API lấy chương trình khung theo sinh viên đăng nhập
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('SINHVIEN')")
+    public ResponseEntity<List<ChuongTrinhKhungDTO>> getChuongTrinhKhungOfCurrentStudent(Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(service.getChuongTrinhKhungForStudent(username));
     }
 
     @GetMapping("/{maNganh}/{maMonHoc}")

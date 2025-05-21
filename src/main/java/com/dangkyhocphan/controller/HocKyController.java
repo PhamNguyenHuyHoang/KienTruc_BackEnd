@@ -26,8 +26,8 @@ public class HocKyController {
             return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy học kỳ đang mở"));
         }
         return ResponseEntity.ok(Map.of(
-                "hocKy", hocKy.getMaHocKy(),
-                "namHoc", hocKy.getNamHoc()
+                "hocKy", hocKy.getId().getMaHocKy(),
+                "namHoc", hocKy.getId().getNamHoc()
         ));
     }
 }

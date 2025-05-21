@@ -1,5 +1,6 @@
 package com.dangkyhocphan.model;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
@@ -11,9 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HocKy {
-    @Id
-    private String maHocKy;
-    private String namHoc;
+    @EmbeddedId
+    private HocKyId id;
     private boolean dangMoDangKy;
+
+
 }
 
