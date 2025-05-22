@@ -1,0 +1,101 @@
+.circle-login-background {
+  position: fixed;
+  inset: 0;
+  background-color: #0f172a; /* Nên dùng màu rất tối */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.circle-ring {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    #00f7ff 0deg 10deg,
+    transparent 10deg 20deg
+  );
+  animation: spin 3s linear infinite;
+  z-index: 1;
+  opacity: 0.1;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.circle-login-form {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 280px;
+}
+
+.circle-title {
+  color: #00f7ff;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.circle-input {
+  width: 100%;
+  padding: 12px 18px;
+  margin-bottom: 15px;
+  border-radius: 25px;
+  border: 2px solid #00f7ff;
+  background-color: #0f172a; /* 🔥 Nền giống hệt nền tổng */
+  color: white;
+  font-size: 14px;
+  outline: none;
+  box-shadow: none !important; /* 💥 Chặn mọi hiệu ứng sáng mặc định */
+}
+
+.circle-input::placeholder {
+  color: #8ec7e0;
+  font-weight: 300;
+}
+
+.circle-button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  background-color: #00f7ff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.circle-button:hover {
+  background-color: #00d9e5;
+}
+
+.circle-link,
+.circle-footer {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #00f7ff;
+}
+
+.circle-link a,
+.circle-footer a {
+  color: #00f7ff;
+  text-decoration: none;
+}
+
+.circle-login-form input[type="text"],
+.circle-login-form input[type="password"] {
+  background-color: #0f172a !important;
+  color: white;
+  box-shadow: none !important;
+  border: 2px solid #00f7ff;
+}

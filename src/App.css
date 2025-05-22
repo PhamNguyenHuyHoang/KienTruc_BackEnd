@@ -1,38 +1,291 @@
-.App {
-  text-align: center;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/* === Default CRA Styles (Optional) === */
+/* ... */
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+/* =================================== */
+/* === Login/Register Page Styles === */
+/* =================================== */
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* --- Container chính của trang --- */
+.auth-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #0f172a; /* đồng bộ nền */
+  overflow: hidden;
+}
+
+/* --- Định vị cho Background Động (react-tsparticles) --- */
+/* *** SỬA HOẶC THÊM ĐOẠN NÀY *** */
+.particles-bg canvas {
+  /* Nhắm vào thẻ canvas được tạo bởi tsparticles */
+  position: absolute !important; /* Ghi đè style mặc định của tsparticles nếu cần */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0 !important; /* Đảm bảo lớp dưới cùng */
+}
+/* --- Kết thúc đoạn sửa/thêm --- */
+
+/* Xóa hoặc comment out đoạn CSS cho .vanta-bg nếu có */
+/*
+.vanta-bg {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0 !important;
+}
+*/
+
+/* --- Container bao quanh Form --- */
+.auth-container {
+  position: relative;
+  z-index: 1; /* Nằm trên background */
+  width: 90%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+/* --- Form đăng nhập/đăng ký (Card mờ) --- */
+.auth-form {
+  background: rgba(30, 30, 40, 0.75);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  color: #ffffff;
+}
+
+/* ... (Các style còn lại cho h2, input-group, button, spinner, signup-link giữ nguyên) ... */
+
+/* --- Nhóm Input (Input có Icon) --- */
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0 15px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-group:focus-within {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(138, 43, 226, 0.7);
+}
+
+.input-icon {
+  margin-right: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Nút Button --- */
+.auth-form button {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: #8a2be2; /* Màu tím */
   color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.App-link {
-  color: #61dafb;
+.auth-form button:hover:not(:disabled) {
+  background-color: #7b24ca;
+  transform: translateY(-2px);
 }
 
-@keyframes App-logo-spin {
-  from {
+.auth-form button:disabled {
+  background-color: #5a1a8a;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Spinner Loading --- */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #ffffff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* --- Link Đăng ký (Sign up) --- */
+.signup-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.9em;
+}
+
+.signup-link a {
+  color: #ab6aff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.signup-link a:hover {
+  color: #c89eff;
+  text-decoration: underline;
+}
+
+/* ================== */
+/* === Keyframes === */
+/* ================== */
+@keyframes spin {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  100% {
     transform: rotate(360deg);
   }
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0d1b2a;
+  position: relative;
+}
+
+.auth-form {
+  background-color: #0d1b2a;
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  color: #ffffff;
+  width: 300px;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-form h2 {
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: #00f7ff;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  background: transparent;
+  border: 2px solid #00f7ff;
+  border-radius: 25px;
+  color: white;
+  outline: none;
+}
+
+.input-icon {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  color: #00f7ff;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00f7ff;
+  border: none;
+  border-radius: 25px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #00d9e5;
+}
+
+/* Loading ring animation (giống ảnh) */
+.auth-container::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: conic-gradient(#00f7ff 0deg, #0d1b2a 60deg);
+  animation: spin 3s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hiệu ứng nút phát sáng */
+
+.btn-glow {
+  box-shadow: 0 0 6px currentColor, 0 0 12px currentColor, 0 0 18px currentColor;
+  transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor,
+    0 0 30px currentColor;
+  transform: translateY(-1px);
 }

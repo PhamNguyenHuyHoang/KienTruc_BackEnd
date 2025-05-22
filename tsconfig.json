@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./src/*"]
+      },
+      // Các tùy chọn tối thiểu khác để file hợp lệ
+      "jsx": "react-jsx", // Hoặc "preserve" tùy cấu hình Vite/React
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "allowJs": true, // Cho phép file JavaScript
+      "skipLibCheck": true,
+      "isolatedModules": true,
+      "noEmit": true // Quan trọng: Không thực sự biên dịch TS
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
+  }
